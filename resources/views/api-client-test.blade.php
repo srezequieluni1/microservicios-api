@@ -117,8 +117,9 @@
         <h2>📚 Recursos</h2>
         <div class="button-group">
             <a href="/api-client" class="button">🚀 Abrir API Client</a>
-            <a href="#" onclick="window.open('/API_CLIENT_README.md')" class="button">📖 Ver Documentación</a>
-            <a href="#" onclick="window.open('/CSS_STRUCTURE_README.md')" class="button">🎨 Estructura CSS</a>
+            <a href="/docs/api-client" class="button">📖 Ver Documentación</a>
+            <a href="/docs/css-structure" class="button">🎨 Estructura CSS</a>
+            <a href="/docs/test-page" class="button">📋 Documentación Test Page</a>
             <a href="/" class="button">🏠 Volver al inicio</a>
         </div>
 
