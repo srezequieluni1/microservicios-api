@@ -15,6 +15,7 @@ Route::prefix('test')->group(function () {
     Route::get('/delay', [ApiTestController::class, 'delayExample']);
     Route::get('/users', [ApiTestController::class, 'usersExample']);
     Route::get('/headers', [ApiTestController::class, 'headersExample']);
+    Route::get('/protected', [ApiTestController::class, 'protectedExample']);
 });
 
 Route::post('/register', [AuthController::class, 'register']);

@@ -57,6 +57,19 @@
 
         <h3>Lista de usuarios</h3>
         <div class="test-url" data-method="GET">{{ url('/api/test/users') }}</div>
+
+        <h3>🔒 Endpoint protegido - Autenticación Bearer</h3>
+        <div class="test-url" data-method="GET">{{ url('/api/test/protected') }}</div>
+        <p><strong>Header requerido:</strong> <code>Authorization: Bearer demo-token-123</code></p>
+        <div class="auth-examples">
+            <p><strong>Tokens válidos para pruebas:</strong></p>
+            <ul>
+                <li><code>demo-token-123</code> - Usuario administrador</li>
+                <li><code>test-token-456</code> - Usuario regular</li>
+                <li><code>api-key-789</code> - Usuario API</li>
+            </ul>
+            <p><em>💡 Tip: Copia cualquiera de estos tokens y úsalo como: "Bearer [token]"</em></p>
+        </div>
     </div>
 
     <div class="test-section">
@@ -67,9 +80,19 @@
             <li>Copia y pega una de las URLs de prueba</li>
             <li>Agrega headers si es necesario (formato JSON)</li>
             <li>Para POST/PUT/PATCH, agrega un cuerpo JSON</li>
+            <li>Para endpoints protegidos, agrega el header: <code>{"Authorization": "Bearer demo-token-123"}</code></li>
             <li>Haz clic en "Ejecutar Request"</li>
             <li>Ve la respuesta formateada con syntax highlighting</li>
         </ol>
+
+        <div class="auth-examples">
+            <p><strong>🔐 Ejemplo de Headers para Autenticación:</strong></p>
+            <pre>{
+  "Authorization": "Bearer demo-token-123",
+  "Content-Type": "application/json"
+}</pre>
+            <em>💡 Los headers se agregan en formato JSON en el campo "Headers" del cliente API</em>
+        </div>
     </div>
 
     <div class="test-section">
@@ -84,6 +107,9 @@
             <li>✅ Función de copiado al portapapeles</li>
             <li>✅ Manejo robusto de errores</li>
             <li>✅ Design responsivo para móviles</li>
+            <li>🔒 Soporte para autenticación Bearer Token</li>
+            <li>🔑 Ejemplos de endpoints protegidos</li>
+            <li>📊 Manejo de códigos de estado HTTP</li>
         </ul>
     </div>
 

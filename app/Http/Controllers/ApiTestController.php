@@ -203,4 +203,91 @@ class ApiTestController extends Controller
             'timestamp' => now()
         ], 200);
     }
+
+    /**
+     * Endpoint protegido que requiere autenticación Bearer Token
+     */
+    public function protectedExample(Request $request): JsonResponse
+    {
+        $authHeader = $request->header('Authorization');
+
+        // Verificar que existe el header Authorization
+        if (!$authHeader) {
+            return response()->json([
+                'error' => 'Token de acceso requerido',
+                'message' => 'Debes incluir el header Authorization con un Bearer token',
+                'example' => 'Authorization: Bearer tu-token-aqui',
+                'status' => 401
+            ], 401);
+        }
+
+        // Verificar formato Bearer
+        if (!str_starts_with($authHeader, 'Bearer ')) {
+            return response()->json([
+                'error' => 'Formato de token inválido',
+                'message' => 'El token debe tener el formato: Bearer [token]',
+                'received' => $authHeader,
+                'expected_format' => 'Bearer tu-token-aqui',
+                'status' => 401
+            ], 401);
+        }
+
+        // Extraer el token
+        $token = substr($authHeader, 7); // Remover "Bearer "
+
+        // Validar tokens de ejemplo (en producción esto sería contra una base de datos)
+        $validTokens = [
+            'demo-token-123' => [
+                'user_id' => 1,
+                'username' => 'admin',
+                'email' => 'admin@ejemplo.com',
+                'role' => 'administrator',
+                'permissions' => ['read', 'write', 'delete']
+            ],
+            'test-token-456' => [
+                'user_id' => 2,
+                'username' => 'usuario',
+                'email' => 'usuario@ejemplo.com',
+                'role' => 'user',
+                'permissions' => ['read']
+            ],
+            'api-key-789' => [
+                'user_id' => 3,
+                'username' => 'api-user',
+                'email' => 'api@ejemplo.com',
+                'role' => 'api',
+                'permissions' => ['read', 'write']
+            ]
+        ];
+
+        // Verificar si el token es válido
+        if (!array_key_exists($token, $validTokens)) {
+            return response()->json([
+                'error' => 'Token inválido o expirado',
+                'message' => 'El token proporcionado no es válido',
+                'valid_tokens_for_testing' => array_keys($validTokens),
+                'status' => 403
+            ], 403);
+        }
+
+        $user = $validTokens[$token];
+
+        // Respuesta exitosa con datos del usuario autenticado
+        return response()->json([
+            'message' => '¡Acceso autorizado exitosamente!',
+            'authenticated_user' => $user,
+            'protected_data' => [
+                'secret_info' => 'Esta información solo está disponible para usuarios autenticados',
+                'server_time' => now(),
+                'access_level' => $user['role'],
+                'available_actions' => $user['permissions']
+            ],
+            'token_info' => [
+                'token_used' => substr($token, 0, 10) . '...',
+                'token_type' => 'Bearer',
+                'expires_in' => '3600 seconds (demo)'
+            ],
+            'timestamp' => now()
+        ], 200);
+    }
 }

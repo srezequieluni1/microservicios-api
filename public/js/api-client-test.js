@@ -191,11 +191,71 @@ function detectUserPreferences() {
     }
 }
 
+/**
+ * Copia tokens de autenticación al portapapeles
+ */
+function copyAuthToken(token) {
+    const fullToken = `Bearer ${token}`;
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(fullToken).then(() => {
+            showCopyFeedback(`Token copiado: ${token}`);
+        }).catch(error => {
+            console.error('Error al copiar token:', error);
+            fallbackCopyText(fullToken);
+            showCopyFeedback(`Token copiado: ${token}`);
+        });
+    } else {
+        fallbackCopyText(fullToken);
+        showCopyFeedback(`Token copiado: ${token}`);
+    }
+}
+
+/**
+ * Inicializa interactividad para tokens de autenticación
+ */
+function initializeAuthTokens() {
+    // Agregar click handlers a los tokens en las listas
+    const authExamples = document.querySelectorAll('.auth-examples li code');
+
+    authExamples.forEach(tokenElement => {
+        // Solo agregar interactividad a elementos que parecen tokens
+        const tokenText = tokenElement.textContent.trim();
+        if (tokenText.includes('token') || tokenText.includes('key')) {
+            tokenElement.style.cursor = 'pointer';
+            tokenElement.style.userSelect = 'none';
+            tokenElement.title = 'Clic para copiar como Bearer token';
+
+            // Agregar efectos hover
+            tokenElement.addEventListener('mouseenter', () => {
+                tokenElement.style.transform = 'scale(1.05)';
+                tokenElement.style.transition = 'transform 0.2s ease';
+            });
+
+            tokenElement.addEventListener('mouseleave', () => {
+                tokenElement.style.transform = 'scale(1)';
+            });
+
+            // Agregar click handler
+            tokenElement.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                copyAuthToken(tokenText);
+
+                // Efecto visual de clic
+                tokenElement.style.background = '#28a745';
+                tokenElement.style.color = 'white';
+                setTimeout(() => {
+                    tokenElement.style.background = '';
+                    tokenElement.style.color = '';
+                }, 1000);
+            });
+        }
+    });
+}
+
 // Ejecutar detección de preferencias
 detectUserPreferences();
 
-// Agregar listener para cambios en preferencias de tema
-if (window.matchMedia) {
-    window.matchMedia('(prefers-color-scheme: dark)').addListener(detectUserPreferences);
-    window.matchMedia('(prefers-reduced-motion: reduce)').addListener(detectUserPreferences);
-}
+// Inicializar funciones de autenticación
+initializeAuthTokens();
