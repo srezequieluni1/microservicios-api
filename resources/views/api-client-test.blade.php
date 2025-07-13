@@ -1,44 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Client Test</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        .test-section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .test-url {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 4px;
-            font-family: monospace;
-            word-break: break-all;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 5px;
-        }
-        .button:hover {
-            background: #0056b3;
-        }
-    </style>
+    <title>API Client Test - Laravel 12</title>
+
+    <!-- Estilos CSS -->
+    <link rel="stylesheet" href="{{ asset('css/api-client-test.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/api-client-test-responsive.css') }}">
 </head>
 <body>
     <h1>🚀 API Client para Laravel 12</h1>
@@ -54,27 +23,40 @@
         <p>Usa estos endpoints para probar el cliente API:</p>
 
         <h3>GET - Ejemplo básico</h3>
-        <div class="test-url">{{ url('/api/test/get-example') }}</div>
+        <div class="test-url" data-method="GET">{{ url('/api/test/get-example') }}</div>
 
         <h3>POST - Enviar datos</h3>
-        <div class="test-url">{{ url('/api/test/post-example') }}</div>
+        <div class="test-url" data-method="POST">{{ url('/api/test/post-example') }}</div>
         <p><strong>Cuerpo de ejemplo:</strong></p>
         <pre>{"nombre": "Juan", "email": "juan@ejemplo.com"}</pre>
 
+        <h3>PUT - Actualizar datos</h3>
+        <div class="test-url" data-method="PUT">{{ url('/api/test/put-example/123') }}</div>
+        <p><strong>Cuerpo de ejemplo:</strong></p>
+        <pre>{"nombre": "Juan Actualizado", "email": "juan.nuevo@ejemplo.com"}</pre>
+
+        <h3>DELETE - Eliminar recurso</h3>
+        <div class="test-url" data-method="DELETE">{{ url('/api/test/delete-example/123') }}</div>
+
+        <h3>PATCH - Actualización parcial</h3>
+        <div class="test-url" data-method="PATCH">{{ url('/api/test/patch-example/123') }}</div>
+        <p><strong>Cuerpo de ejemplo:</strong></p>
+        <pre>{"email": "juan.parcial@ejemplo.com"}</pre>
+
         <h3>Códigos de estado</h3>
-        <div class="test-url">{{ url('/api/test/status?status=200') }}</div>
-        <p>Cambia el parámetro <code>status</code> por: 200, 400, 404, 500, etc.</p>
+        <div class="test-url" data-method="GET">{{ url('/api/test/status?status=200') }}</div>
+        <p>Cambia el parámetro <code>status</code> por: 200, 201, 400, 404, 500, etc.</p>
 
         <h3>Prueba de demora</h3>
-        <div class="test-url">{{ url('/api/test/delay?delay=2') }}</div>
+        <div class="test-url" data-method="GET">{{ url('/api/test/delay?delay=2') }}</div>
         <p>Cambia el parámetro <code>delay</code> (0-10 segundos)</p>
 
         <h3>Headers requeridos</h3>
-        <div class="test-url">{{ url('/api/test/headers') }}</div>
+        <div class="test-url" data-method="GET">{{ url('/api/test/headers') }}</div>
         <p><strong>Header requerido:</strong> <code>X-API-Key: tu-api-key-aqui</code></p>
 
         <h3>Lista de usuarios</h3>
-        <div class="test-url">{{ url('/api/test/users') }}</div>
+        <div class="test-url" data-method="GET">{{ url('/api/test/users') }}</div>
     </div>
 
     <div class="test-section">
@@ -107,8 +89,23 @@
 
     <div class="test-section">
         <h2>📚 Recursos</h2>
-        <a href="#" onclick="window.open('/API_CLIENT_README.md')" class="button">Ver Documentación</a>
-        <a href="/" class="button">Volver al inicio</a>
+        <div class="button-group">
+            <a href="/api-client" class="button">🚀 Abrir API Client</a>
+            <a href="#" onclick="window.open('/API_CLIENT_README.md')" class="button">📖 Ver Documentación</a>
+            <a href="#" onclick="window.open('/CSS_STRUCTURE_README.md')" class="button">🎨 Estructura CSS</a>
+            <a href="/" class="button">🏠 Volver al inicio</a>
+        </div>
+
+        <h3>Enlaces útiles:</h3>
+        <ul>
+            <li><a href="/api/ping" target="_blank">🔍 Ping API (Verificar estado)</a></li>
+            <li><a href="https://laravel.com/docs" target="_blank">📚 Documentación Laravel</a></li>
+            <li><a href="https://developer.mozilla.org/es/docs/Web/API/Fetch_API" target="_blank">🌐 Fetch API MDN</a></li>
+            <li><a href="https://httpstatuses.com/" target="_blank">📊 Códigos de estado HTTP</a></li>
+        </ul>
     </div>
+
+    <!-- JavaScript -->
+    <script src="{{ asset('js/api-client-test.js') }}"></script>
 </body>
 </html>

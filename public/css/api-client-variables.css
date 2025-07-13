@@ -1,0 +1,186 @@
+/* Variables CSS para fácil personalización del API Client */
+
+:root {
+    /* Colores principales */
+    --primary-color: #3498db;
+    --primary-dark: #2980b9;
+    --success-color: #27ae60;
+    --success-light: #2ecc71;
+    --error-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #3498db;
+
+    /* Colores de estado */
+    --status-success-bg: #d5f4e6;
+    --status-error-bg: #ffeaea;
+    --status-warning-bg: #fff3cd;
+
+    /* Colores de fondo */
+    --bg-gradient-start: #667eea;
+    --bg-gradient-end: #764ba2;
+    --header-gradient-start: #1e3c72;
+    --header-gradient-end: #2a5298;
+    --button-gradient-start: #27ae60;
+    --button-gradient-end: #2ecc71;
+
+    /* Colores de texto */
+    --text-primary: #2c3e50;
+    --text-secondary: #34495e;
+    --text-muted: #7f8c8d;
+    --text-light: #ecf0f1;
+
+    /* Colores de borde */
+    --border-color: #e1e5e9;
+    --border-hover: #bdc3c7;
+    --border-focus: #3498db;
+
+    /* Colores de fondo secundarios */
+    --bg-white: white;
+    --bg-light: #f8f9fa;
+    --bg-dark: #2c3e50;
+    --bg-darker: #34495e;
+
+    /* Syntax highlighting JSON */
+    --json-key-color: #3498db;
+    --json-string-color: #2ecc71;
+    --json-number-color: #f39c12;
+    --json-boolean-color: #e74c3c;
+    --json-null-color: #95a5a6;
+
+    /* Espaciado */
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 15px;
+    --spacing-lg: 20px;
+    --spacing-xl: 30px;
+
+    /* Border radius */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --border-radius-xl: 20px;
+
+    /* Sombras */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 20px rgba(39, 174, 96, 0.3);
+    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.1);
+
+    /* Tipografía */
+    --font-family-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-family-mono: 'Courier New', monospace;
+    --font-size-xs: 0.8rem;
+    --font-size-sm: 0.85rem;
+    --font-size-base: 0.9rem;
+    --font-size-md: 1rem;
+    --font-size-lg: 1.1rem;
+    --font-size-xl: 1.2rem;
+    --font-size-xxl: 1.4rem;
+    --font-size-hero: 2.5rem;
+
+    /* Pesos de fuente */
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Transiciones */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+
+    /* Z-index */
+    --z-dropdown: 1000;
+    --z-modal: 1050;
+    --z-tooltip: 1100;
+
+    /* Anchos máximos */
+    --container-max-width: 1200px;
+    --panel-min-height: calc(100vh - 200px);
+    --response-body-max-height: 400px;
+    --headers-max-height: 120px;
+
+    /* Alturas mínimas */
+    --textarea-min-height: 150px;
+    --textarea-headers-min-height: 100px;
+}
+
+/* Tema oscuro (opcional) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-primary: #ecf0f1;
+        --text-secondary: #bdc3c7;
+        --text-muted: #95a5a6;
+        --bg-white: #2c3e50;
+        --bg-light: #34495e;
+        --border-color: #4a6741;
+        --border-hover: #5d6d7e;
+    }
+}
+
+/* Utilidades para colores de método HTTP */
+.method-get { color: var(--success-color) !important; }
+.method-post { color: var(--primary-color) !important; }
+.method-put { color: var(--warning-color) !important; }
+.method-delete { color: var(--error-color) !important; }
+.method-patch { color: #9b59b6 !important; }
+
+/* Clases de utilidad para estados */
+.status-2xx {
+    background: var(--status-success-bg);
+    color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.status-4xx,
+.status-5xx {
+    background: var(--status-error-bg);
+    color: var(--error-color);
+    border-color: var(--error-color);
+}
+
+.status-3xx {
+    background: var(--status-warning-bg);
+    color: var(--warning-color);
+    border-color: var(--warning-color);
+}
+
+/* Clases de utilidad para animaciones */
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.animate-bounce {
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 53%, 80%, 100% { transform: translate3d(0, 0, 0); }
+    40%, 43% { transform: translate3d(0, -30px, 0); }
+    70% { transform: translate3d(0, -15px, 0); }
+    90% { transform: translate3d(0, -4px, 0); }
+}
+
+/* Clases de utilidad para espaciado */
+.mt-xs { margin-top: var(--spacing-xs); }
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+.mt-xl { margin-top: var(--spacing-xl); }
+
+.mb-xs { margin-bottom: var(--spacing-xs); }
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+.mb-xl { margin-bottom: var(--spacing-xl); }
+
+.p-xs { padding: var(--spacing-xs); }
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+.p-xl { padding: var(--spacing-xl); }
