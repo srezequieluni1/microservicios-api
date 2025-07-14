@@ -15,11 +15,15 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>API Client</h1>
-            <p>Herramienta para probar endpoints de API - Laravel 12</p>
-            <div class="header-links">
-                <a href="/api-client-test" class="header-link">🧪 Página de Pruebas</a>
-                <a href="/docs/history" class="header-link">📚 Ayuda del Historial</a>
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>API Client</h1>
+                    <span class="header-subtitle">Laravel 12</span>
+                </div>
+                <div class="header-links">
+                    <a href="/api-client-test" class="header-link">🧪 Pruebas</a>
+                    <a href="/docs/history" class="header-link">📚 Historial</a>
+                </div>
             </div>
         </div>
 
