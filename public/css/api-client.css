@@ -225,9 +225,40 @@ body {
 
 .history-group {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto 1fr auto;
     gap: var(--spacing-sm);
     align-items: center;
+}
+
+.new-query-button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-md);
+    padding: 12px;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 44px;
+    box-shadow: var(--shadow-sm);
+}
+
+.new-query-button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.new-query-button:active {
+    transform: translateY(0);
+}
+
+.new-query-button svg {
+    width: 16px;
+    height: 16px;
 }
 
 .delete-history-button {

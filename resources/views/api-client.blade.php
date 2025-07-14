@@ -51,6 +51,11 @@
                     <div class="form-group">
                         <label class="form-label">Historial de consultas</label>
                         <div class="history-group">
+                            <button type="button" id="newQueryButton" class="new-query-button" title="Nueva consulta">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14M5 12h14"/>
+                                </svg>
+                            </button>
                             <select id="queryHistory" class="form-control">
                                 <option value="">Seleccionar consulta previa...</option>
                             </select>

@@ -1,32 +1,107 @@
 // Variables globales
 let currentResponse = null;
 
-// Referencias a elementos del DOM
-const apiForm = document.getElementById('apiForm');
-const httpMethodSelect = document.getElementById('httpMethod');
-const apiUrlInput = document.getElementById('apiUrl');
-const customHeadersInput = document.getElementById('customHeaders');
-const requestBodyInput = document.getElementById('requestBody');
-const executeButton = document.getElementById('executeButton');
-const buttonText = document.querySelector('.button-text');
-const loadingSpinner = document.querySelector('.loading');
+// Manejo de errores global para debugging
+window.addEventListener('error', function(event) {
+    console.error('🚨 Error JavaScript capturado:', {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        error: event.error
+    });
+});
 
-const responseContainer = document.getElementById('responseContainer');
-const responseContent = document.getElementById('responseContent');
-const statusBadge = document.getElementById('statusBadge');
-const responseTime = document.getElementById('responseTime');
-const responseHeaders = document.getElementById('responseHeaders');
-const responseBody = document.getElementById('responseBody');
-const copyButton = document.getElementById('copyButton');
+// Manejo de promesas rechazadas
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('🚨 Promesa rechazada no manejada:', event.reason);
+});
 
-// Event listeners
-apiForm.addEventListener('submit', handleFormSubmit);
-copyButton.addEventListener('click', copyResponseToClipboard);
+// Función de inicialización
+function initializeApiClient() {
+    console.log('🚀 Inicializando API Client...');
 
-// Validación en tiempo real
-apiUrlInput.addEventListener('blur', validateUrl);
-customHeadersInput.addEventListener('blur', () => validateJSON(customHeadersInput, 'headersError'));
-requestBodyInput.addEventListener('blur', () => validateJSON(requestBodyInput, 'bodyError'));
+    // Referencias a elementos del DOM
+    const apiForm = document.getElementById('apiForm');
+    const httpMethodSelect = document.getElementById('httpMethod');
+    const apiUrlInput = document.getElementById('apiUrl');
+    const customHeadersInput = document.getElementById('customHeaders');
+    const requestBodyInput = document.getElementById('requestBody');
+    const executeButton = document.getElementById('executeButton');
+    const buttonText = document.querySelector('.button-text');
+    const loadingSpinner = document.querySelector('.loading');
+
+    const responseContainer = document.getElementById('responseContainer');
+    const responseContent = document.getElementById('responseContent');
+    const statusBadge = document.getElementById('statusBadge');
+    const responseTime = document.getElementById('responseTime');
+    const responseHeaders = document.getElementById('responseHeaders');
+    const responseBody = document.getElementById('responseBody');
+    const copyButton = document.getElementById('copyButton');
+
+    // Verificar elementos críticos
+    const criticalElements = {
+        apiForm,
+        httpMethodSelect,
+        apiUrlInput,
+        executeButton
+    };
+
+    for (const [name, element] of Object.entries(criticalElements)) {
+        if (!element) {
+            console.error(`❌ Elemento crítico no encontrado: ${name}`);
+            return;
+        }
+    }
+
+    console.log('✅ Todos los elementos DOM encontrados');
+
+    // Hacer las referencias globales para que estén disponibles en otras funciones
+    window.apiClientElements = {
+        apiForm,
+        httpMethodSelect,
+        apiUrlInput,
+        customHeadersInput,
+        requestBodyInput,
+        executeButton,
+        buttonText,
+        loadingSpinner,
+        responseContainer,
+        responseContent,
+        statusBadge,
+        responseTime,
+        responseHeaders,
+        responseBody,
+        copyButton
+    };
+
+    // Event listeners
+    if (apiForm) {
+        apiForm.addEventListener('submit', handleFormSubmit);
+        console.log('📝 Event listener del formulario agregado');
+    }
+
+    if (copyButton) {
+        copyButton.addEventListener('click', copyResponseToClipboard);
+        console.log('📋 Event listener del botón copiar agregado');
+    }
+
+    // Validación en tiempo real
+    if (apiUrlInput) {
+        apiUrlInput.addEventListener('blur', validateUrl);
+    }
+    if (customHeadersInput) {
+        customHeadersInput.addEventListener('blur', () => validateJSON(customHeadersInput, 'headersError'));
+    }
+    if (requestBodyInput) {
+        requestBodyInput.addEventListener('blur', () => validateJSON(requestBodyInput, 'bodyError'));
+    }
+
+    console.log('🎉 API Client inicializado correctamente');
+}
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', initializeApiClient);
 
 /**
  * Maneja el envío del formulario
@@ -34,39 +109,62 @@ requestBodyInput.addEventListener('blur', () => validateJSON(requestBodyInput, '
 async function handleFormSubmit(event) {
     event.preventDefault();
 
+    console.log('🔄 Iniciando envío del formulario...');
+
     // Validar formulario antes de enviar
     if (!validateForm()) {
+        console.log('❌ Validación del formulario falló');
         return;
     }
 
+    console.log('✅ Formulario validado correctamente');
+
     // Guardar en historial antes de enviar
-    if (window.apiHistoryManager) {
-        window.apiHistoryManager.saveCurrentQuery();
+    try {
+        if (window.apiHistoryManager) {
+            window.apiHistoryManager.saveCurrentQuery();
+            console.log('💾 Consulta guardada en historial');
+        }
+    } catch (historyError) {
+        console.warn('Error al guardar en historial (no afecta la ejecución):', historyError);
     }
 
     // Mostrar estado de carga
     setLoadingState(true);
+    console.log('⏳ Estado de carga activado');
 
     try {
         const startTime = performance.now();
 
         // Preparar la petición
         const requestOptions = await prepareRequest();
+        console.log('📦 Opciones de petición preparadas:', requestOptions);
 
         // Realizar la petición HTTP
-        const response = await fetch(apiUrlInput.value.trim(), requestOptions);
+        const apiUrlInput = window.apiClientElements?.apiUrlInput;
+        if (!apiUrlInput) {
+            throw new Error('Elemento URL no encontrado');
+        }
+
+        const url = apiUrlInput.value.trim();
+        console.log('🌐 Enviando petición a:', url);
+
+        const response = await fetch(url, requestOptions);
 
         const endTime = performance.now();
         const duration = Math.round(endTime - startTime);
+
+        console.log('📡 Respuesta recibida en', duration, 'ms');
 
         // Procesar la respuesta
         await handleResponse(response, duration);
 
     } catch (error) {
-        console.error('Error en la petición:', error);
+        console.error('❌ Error en la petición:', error);
         handleError(error);
     } finally {
         setLoadingState(false);
+        console.log('✅ Estado de carga desactivado');
     }
 }
 
@@ -81,13 +179,17 @@ function validateForm() {
         isValid = false;
     }
 
+    // Obtener referencias a los elementos
+    const customHeadersInput = window.apiClientElements?.customHeadersInput;
+    const requestBodyInput = window.apiClientElements?.requestBodyInput;
+
     // Validar headers JSON
-    if (!validateJSON(customHeadersInput, 'headersError')) {
+    if (customHeadersInput && !validateJSON(customHeadersInput, 'headersError')) {
         isValid = false;
     }
 
     // Validar body JSON
-    if (!validateJSON(requestBodyInput, 'bodyError')) {
+    if (requestBodyInput && !validateJSON(requestBodyInput, 'bodyError')) {
         isValid = false;
     }
 
@@ -98,6 +200,9 @@ function validateForm() {
  * Valida la URL ingresada
  */
 function validateUrl() {
+    const apiUrlInput = window.apiClientElements?.apiUrlInput;
+    if (!apiUrlInput) return false;
+
     const url = apiUrlInput.value.trim();
     const urlError = document.getElementById('urlError');
 
@@ -159,11 +264,19 @@ function hideFieldError(input, errorElement) {
  * Prepara las opciones de la petición HTTP
  */
 async function prepareRequest() {
+    const httpMethodSelect = window.apiClientElements?.httpMethodSelect;
+    const customHeadersInput = window.apiClientElements?.customHeadersInput;
+    const requestBodyInput = window.apiClientElements?.requestBodyInput;
+
+    if (!httpMethodSelect) {
+        throw new Error('Elementos del formulario no encontrados');
+    }
+
     const method = httpMethodSelect.value;
     const headers = {};
 
     // Parsear headers personalizados
-    const customHeaders = customHeadersInput.value.trim();
+    const customHeaders = customHeadersInput?.value.trim() || '';
     if (customHeaders) {
         try {
             Object.assign(headers, JSON.parse(customHeaders));
@@ -182,7 +295,7 @@ async function prepareRequest() {
 
     // Agregar body para métodos que lo permiten
     if (['POST', 'PUT', 'PATCH'].includes(method)) {
-        const body = requestBodyInput.value.trim();
+        const body = requestBodyInput?.value.trim() || '';
         if (body) {
             options.body = body;
             // Asegurar Content-Type si no está definido
@@ -218,6 +331,14 @@ async function handleResponse(response, duration) {
  * Muestra información básica de la respuesta
  */
 function displayResponseInfo(response, duration) {
+    const statusBadge = window.apiClientElements?.statusBadge;
+    const responseTime = window.apiClientElements?.responseTime;
+
+    if (!statusBadge || !responseTime) {
+        console.error('Elementos de respuesta no encontrados');
+        return;
+    }
+
     // Status badge
     const status = response.status;
     statusBadge.textContent = `${status} ${response.statusText}`;
@@ -241,6 +362,13 @@ function getStatusClass(status) {
  * Muestra los headers de respuesta
  */
 function displayResponseHeaders(response) {
+    const responseHeaders = window.apiClientElements?.responseHeaders;
+
+    if (!responseHeaders) {
+        console.error('Elemento responseHeaders no encontrado');
+        return;
+    }
+
     const headersObj = {};
     for (const [key, value] of response.headers.entries()) {
         headersObj[key] = value;
@@ -253,6 +381,13 @@ function displayResponseHeaders(response) {
  * Procesa y muestra el body de la respuesta
  */
 async function displayResponseBody(response) {
+    const responseBody = window.apiClientElements?.responseBody;
+
+    if (!responseBody) {
+        console.error('Elemento responseBody no encontrado');
+        return;
+    }
+
     try {
         const contentType = response.headers.get('content-type') || '';
 
@@ -297,6 +432,14 @@ function syntaxHighlightJSON(json) {
  * Muestra el panel de respuesta con animación
  */
 function showResponsePanel() {
+    const responseContainer = window.apiClientElements?.responseContainer;
+    const responseContent = window.apiClientElements?.responseContent;
+
+    if (!responseContainer || !responseContent) {
+        console.error('Elementos del panel de respuesta no encontrados');
+        return;
+    }
+
     responseContainer.style.display = 'none';
     responseContent.style.display = 'block';
     responseContent.classList.add('fade-in');
@@ -307,6 +450,19 @@ function showResponsePanel() {
  */
 function handleError(error) {
     console.error('Error en la petición:', error);
+
+    const responseContainer = window.apiClientElements?.responseContainer;
+    const responseContent = window.apiClientElements?.responseContent;
+    const statusBadge = window.apiClientElements?.statusBadge;
+    const responseTime = window.apiClientElements?.responseTime;
+    const responseHeaders = window.apiClientElements?.responseHeaders;
+    const responseBody = window.apiClientElements?.responseBody;
+
+    if (!responseContainer || !responseContent || !statusBadge ||
+        !responseTime || !responseHeaders || !responseBody) {
+        console.error('Elementos para mostrar error no encontrados');
+        return;
+    }
 
     // Mostrar error en el panel de respuesta
     responseContainer.style.display = 'none';
@@ -326,14 +482,20 @@ function handleError(error) {
  * Controla el estado de carga del botón
  */
 function setLoadingState(isLoading) {
+    const executeButton = window.apiClientElements?.executeButton;
+    const buttonText = window.apiClientElements?.buttonText;
+    const loadingSpinner = window.apiClientElements?.loadingSpinner;
+
+    if (!executeButton) return;
+
     if (isLoading) {
         executeButton.disabled = true;
-        buttonText.style.display = 'none';
-        loadingSpinner.style.display = 'block';
+        if (buttonText) buttonText.style.display = 'none';
+        if (loadingSpinner) loadingSpinner.style.display = 'block';
     } else {
         executeButton.disabled = false;
-        buttonText.style.display = 'block';
-        loadingSpinner.style.display = 'none';
+        if (buttonText) buttonText.style.display = 'block';
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
     }
 }
 
@@ -341,6 +503,11 @@ function setLoadingState(isLoading) {
  * Copia la respuesta JSON al portapapeles
  */
 async function copyResponseToClipboard() {
+    const responseBody = window.apiClientElements?.responseBody;
+    const copyButton = window.apiClientElements?.copyButton;
+
+    if (!responseBody || !copyButton) return;
+
     try {
         const text = responseBody.textContent || responseBody.innerText;
         await navigator.clipboard.writeText(text);
@@ -365,12 +532,23 @@ async function copyResponseToClipboard() {
  * Inicialización de la aplicación
  */
 function initializeApp() {
+    const apiUrlInput = window.apiClientElements?.apiUrlInput;
+    const customHeadersInput = window.apiClientElements?.customHeadersInput;
+
+    if (!apiUrlInput) {
+        console.error('apiUrlInput no encontrado durante la inicialización');
+        return;
+    }
+
     // Configurar valores por defecto
     apiUrlInput.value = window.location.origin + '/api/';
-    customHeadersInput.value = JSON.stringify({
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-    }, null, 2);
+
+    if (customHeadersInput) {
+        customHeadersInput.value = JSON.stringify({
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }, null, 2);
+    }
 
     // Configurar auto-generación de nombres de consulta
     setupAutoQueryNaming();
@@ -386,7 +564,16 @@ function setupAutoQueryNaming() {
     const urlInput = document.getElementById('apiUrl');
     const methodSelect = document.getElementById('httpMethod');
 
-    if (!queryNameInput || !urlInput || !methodSelect) return;
+    if (!queryNameInput || !urlInput || !methodSelect) {
+        console.warn('Elementos para auto-generación de nombres no encontrados:', {
+            queryNameInput: !!queryNameInput,
+            urlInput: !!urlInput,
+            methodSelect: !!methodSelect
+        });
+        return;
+    }
+
+    console.log('✅ Auto-generación de nombres configurada correctamente');
 
     // Generar nombre automático cuando cambien URL o método
     function generateAutoName() {
@@ -429,4 +616,20 @@ function setupAutoQueryNaming() {
 }
 
 // Inicialización cuando el DOM está cargado
-document.addEventListener('DOMContentLoaded', initializeApp);
+document.addEventListener('DOMContentLoaded', function() {
+    // Esperar un poco para asegurar que initializeApiClient se ejecute primero
+    setTimeout(() => {
+        if (window.apiClientElements) {
+            initializeApp();
+        } else {
+            console.warn('apiClientElements no está disponible, reintentando...');
+            setTimeout(() => {
+                if (window.apiClientElements) {
+                    initializeApp();
+                } else {
+                    console.error('No se pudo inicializar la aplicación: elementos no encontrados');
+                }
+            }, 500);
+        }
+    }, 100);
+});

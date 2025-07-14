@@ -23,6 +23,7 @@ class ApiHistoryManager {
     initializeEventListeners() {
         const historySelect = document.getElementById('queryHistory');
         const deleteButton = document.getElementById('deleteHistoryButton');
+        const newQueryButton = document.getElementById('newQueryButton');
         const form = document.getElementById('apiForm');
 
         // Cargar consulta seleccionada
@@ -35,6 +36,11 @@ class ApiHistoryManager {
         // Eliminar consulta
         deleteButton.addEventListener('click', () => {
             this.deleteSelectedQuery();
+        });
+
+        // Crear nueva consulta
+        newQueryButton.addEventListener('click', () => {
+            this.createNewQuery();
         });
 
         // Guardar al enviar formulario
@@ -117,8 +123,9 @@ class ApiHistoryManager {
      */
     generateQueryId(name) {
         const timestamp = Date.now();
-        const sanitizedName = name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-        return `${sanitizedName}_${timestamp}`;
+        const randomId = Math.random().toString(36).substr(2, 9);
+        const safeName = name.toLowerCase().replace(/[^a-z0-9]/g, '_').substring(0, 20);
+        return `${safeName}_${timestamp}_${randomId}`;
     }
 
     /**
@@ -154,30 +161,41 @@ class ApiHistoryManager {
      * Guardar consulta actual
      */
     saveCurrentQuery() {
-        const formData = this.getCurrentFormData();
+        try {
+            const formData = this.getCurrentFormData();
 
-        if (!formData.name) {
-            // Si no tiene nombre, generar uno automático
-            const url = new URL(formData.url).pathname;
-            formData.name = `${formData.method} ${url}`;
+            if (!formData.name) {
+                // Si no tiene nombre, generar uno automático
+                try {
+                    const url = new URL(formData.url);
+                    formData.name = `${formData.method} ${url.pathname}`;
+                } catch (urlError) {
+                    // Si la URL no es válida, usar un nombre genérico
+                    formData.name = `${formData.method} Request`;
+                }
+            }
+
+            const queries = this.getStoredQueries();
+            const queryId = this.currentQueryId || this.generateQueryId(formData.name);
+
+            queries[queryId] = formData;
+
+            // Limpiar historial si excede el máximo
+            this.cleanupHistory(queries);
+
+            this.saveStoredQueries(queries);
+            this.currentQueryId = queryId;
+
+            this.loadHistoryList();
+            this.selectCurrentQuery();
+            this.showSavedIndicator();
+
+            return queryId;
+        } catch (error) {
+            console.error('Error al guardar consulta:', error);
+            // No bloquear la ejecución si hay error en el guardado
+            return null;
         }
-
-        const queries = this.getStoredQueries();
-        const queryId = this.currentQueryId || this.generateQueryId(formData.name);
-
-        queries[queryId] = formData;
-
-        // Limpiar historial si excede el máximo
-        this.cleanupHistory(queries);
-
-        this.saveStoredQueries(queries);
-        this.currentQueryId = queryId;
-
-        this.loadHistoryList();
-        this.selectCurrentQuery();
-        this.showSavedIndicator();
-
-        return queryId;
     }
 
     /**
@@ -208,43 +226,29 @@ class ApiHistoryManager {
     }
 
     /**
-     * Cargar una consulta específica
+     * Limpiar historial si excede el máximo permitido
      */
-    loadQuery(queryId) {
-        const queries = this.getStoredQueries();
-        const query = queries[queryId];
+    cleanupHistory(queries) {
+        const queryEntries = Object.entries(queries);
 
-        if (query) {
-            this.currentQueryId = queryId;
-            this.loadFormData(query);
-            this.updateDeleteButtonState();
-        }
-    }
+        if (queryEntries.length > this.maxHistoryItems) {
+            // Ordenar por timestamp y mantener solo los más recientes
+            queryEntries.sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
 
-    /**
-     * Eliminar consulta seleccionada
-     */
-    deleteSelectedQuery() {
-        const historySelect = document.getElementById('queryHistory');
-        const selectedId = historySelect.value;
+            // Mantener solo los items más recientes
+            const recentQueries = queryEntries.slice(0, this.maxHistoryItems);
 
-        if (!selectedId) return;
+            // Crear nuevo objeto con solo los items recientes
+            const cleanedQueries = {};
+            recentQueries.forEach(([id, query]) => {
+                cleanedQueries[id] = query;
+            });
 
-        const queries = this.getStoredQueries();
-        const queryName = queries[selectedId]?.name || 'consulta';
+            // Actualizar el objeto original
+            Object.keys(queries).forEach(key => delete queries[key]);
+            Object.assign(queries, cleanedQueries);
 
-        if (confirm(`¿Estás seguro de que quieres eliminar "${queryName}"?`)) {
-            delete queries[selectedId];
-            this.saveStoredQueries(queries);
-
-            // Si era la consulta actual, limpiar
-            if (this.currentQueryId === selectedId) {
-                this.currentQueryId = null;
-            }
-
-            this.loadHistoryList();
-            this.clearForm();
-            this.updateDeleteButtonState();
+            console.log(`🧹 Historial limpiado: mantenidos ${recentQueries.length} de ${queryEntries.length} items`);
         }
     }
 
@@ -253,30 +257,28 @@ class ApiHistoryManager {
      */
     loadHistoryList() {
         const historySelect = document.getElementById('queryHistory');
+        if (!historySelect) return;
+
         const queries = this.getStoredQueries();
 
-        // Convertir a array y ordenar por timestamp descendente
-        const sortedQueries = Object.entries(queries)
-            .sort(([,a], [,b]) => b.timestamp - a.timestamp);
+        // Limpiar opciones actuales (excepto la primera)
+        while (historySelect.children.length > 1) {
+            historySelect.removeChild(historySelect.lastChild);
+        }
 
-        // Limpiar opciones existentes excepto la primera
-        historySelect.innerHTML = '<option value="">Seleccionar consulta previa...</option>';
+        // Ordenar consultas por timestamp (más recientes primero)
+        const sortedQueries = Object.entries(queries)
+            .sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
 
         // Agregar opciones
         sortedQueries.forEach(([id, query]) => {
             const option = document.createElement('option');
             option.value = id;
-
-            const date = new Date(query.timestamp).toLocaleDateString();
-            const time = new Date(query.timestamp).toLocaleTimeString('es-ES', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            option.textContent = `${query.name} (${date} ${time})`;
+            option.textContent = query.name || `${query.method} Request`;
             historySelect.appendChild(option);
         });
 
+        // Actualizar estado del botón eliminar
         this.updateDeleteButtonState();
     }
 
@@ -284,8 +286,8 @@ class ApiHistoryManager {
      * Seleccionar consulta actual en el dropdown
      */
     selectCurrentQuery() {
-        if (this.currentQueryId) {
-            const historySelect = document.getElementById('queryHistory');
+        const historySelect = document.getElementById('queryHistory');
+        if (historySelect && this.currentQueryId) {
             historySelect.value = this.currentQueryId;
         }
     }
@@ -301,132 +303,176 @@ class ApiHistoryManager {
     }
 
     /**
-     * Limpiar formulario
+     * Crear una nueva consulta en blanco
+     */
+    createNewQuery() {
+        // Confirmar si hay cambios sin guardar
+        if (this.currentQueryId && this.hasUnsavedChanges()) {
+            const confirmCreate = confirm('Tienes cambios sin guardar. ¿Quieres crear una nueva consulta sin guardar los cambios actuales?');
+            if (!confirmCreate) {
+                return;
+            }
+        }
+
+        // Limpiar formulario
+        this.clearForm();
+
+        // Resetear ID actual
+        this.currentQueryId = null;
+
+        // Limpiar selección del historial
+        const historySelect = document.getElementById('queryHistory');
+        historySelect.value = '';
+
+        // Enfocar en el campo de nombre
+        const queryNameInput = document.getElementById('queryName');
+        if (queryNameInput) {
+            queryNameInput.focus();
+        }
+
+        // Actualizar estado del botón eliminar
+        this.updateDeleteButtonState();
+
+        // Mostrar feedback visual
+        this.showNewQueryIndicator();
+
+        console.log('📝 Nueva consulta creada');
+    }
+
+    /**
+     * Verificar si hay cambios sin guardar
+     */
+    hasUnsavedChanges() {
+        if (!this.currentQueryId) return false;
+
+        const currentData = this.getCurrentFormData();
+        const storedQueries = this.getStoredQueries();
+        const storedData = storedQueries[this.currentQueryId];
+
+        if (!storedData) return false;
+
+        // Comparar campos principales
+        return (
+            currentData.name !== storedData.name ||
+            currentData.method !== storedData.method ||
+            currentData.url !== storedData.url ||
+            currentData.headers !== storedData.headers ||
+            currentData.body !== storedData.body
+        );
+    }
+
+    /**
+     * Limpiar todos los campos del formulario
      */
     clearForm() {
         this.isUpdating = true;
 
+        // Limpiar campos principales
         document.getElementById('queryName').value = '';
         document.getElementById('httpMethod').value = 'GET';
         document.getElementById('apiUrl').value = '';
         document.getElementById('customHeaders').value = '';
         document.getElementById('requestBody').value = '';
-        document.getElementById('queryHistory').value = '';
 
-        this.currentQueryId = null;
+        // Limpiar errores de validación
+        this.clearValidationErrors();
+
+        // Ocultar panel de respuesta si está visible
+        const responseContainer = document.getElementById('responseContainer');
+        if (responseContainer) {
+            responseContainer.style.display = 'none';
+        }
+
         this.isUpdating = false;
     }
 
     /**
-     * Mostrar indicador de guardado
+     * Limpiar errores de validación
      */
-    showSavedIndicator() {
-        // Crear indicador si no existe
-        let indicator = document.querySelector('.query-saved-indicator');
-        if (!indicator) {
-            indicator = document.createElement('div');
-            indicator.className = 'query-saved-indicator';
-            indicator.textContent = '✓ Guardado';
-
-            const nameField = document.getElementById('queryName').parentElement;
-            nameField.appendChild(indicator);
-        }
-
-        // Mostrar animación
-        indicator.classList.add('show');
-        setTimeout(() => {
-            indicator.classList.remove('show');
-        }, 2000);
-    }
-
-    /**
-     * Limpiar historial antiguo
-     */
-    cleanupHistory(queries) {
-        const entries = Object.entries(queries);
-
-        if (entries.length > this.maxHistoryItems) {
-            // Ordenar por timestamp y mantener solo los más recientes
-            const sorted = entries.sort(([,a], [,b]) => b.timestamp - a.timestamp);
-            const toKeep = sorted.slice(0, this.maxHistoryItems);
-
-            // Crear nuevo objeto con solo las entradas a mantener
-            const cleaned = {};
-            toKeep.forEach(([id, data]) => {
-                cleaned[id] = data;
-            });
-
-            // Reemplazar queries con la versión limpia
-            Object.keys(queries).forEach(key => delete queries[key]);
-            Object.assign(queries, cleaned);
-        }
-    }
-
-    /**
-     * Exportar historial como JSON
-     */
-    exportHistory() {
-        const queries = this.getStoredQueries();
-        const dataStr = JSON.stringify(queries, null, 2);
-        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-
-        const exportFileDefaultName = 'api_client_history.json';
-
-        const linkElement = document.createElement('a');
-        linkElement.setAttribute('href', dataUri);
-        linkElement.setAttribute('download', exportFileDefaultName);
-        linkElement.click();
-    }
-
-    /**
-     * Importar historial desde JSON
-     */
-    importHistory(file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const imported = JSON.parse(e.target.result);
-                const existing = this.getStoredQueries();
-
-                // Combinar historiales
-                const combined = { ...existing, ...imported };
-                this.saveStoredQueries(combined);
-                this.loadHistoryList();
-
-                alert('Historial importado exitosamente');
-            } catch (error) {
-                alert('Error al importar historial: archivo inválido');
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    /**
-     * Obtener estadísticas del historial
-     */
-    getStats() {
-        const queries = this.getStoredQueries();
-        const methods = {};
-        let totalQueries = 0;
-
-        Object.values(queries).forEach(query => {
-            totalQueries++;
-            methods[query.method] = (methods[query.method] || 0) + 1;
+    clearValidationErrors() {
+        const errorElements = document.querySelectorAll('.error-message');
+        errorElements.forEach(element => {
+            element.style.display = 'none';
         });
 
-        return {
-            total: totalQueries,
-            methods,
-            oldestQuery: Math.min(...Object.values(queries).map(q => q.timestamp)),
-            newestQuery: Math.max(...Object.values(queries).map(q => q.timestamp))
-        };
+        const invalidFields = document.querySelectorAll('.form-control.invalid');
+        invalidFields.forEach(field => {
+            field.classList.remove('invalid');
+        });
+    }
+
+    /**
+     * Mostrar indicador de nueva consulta
+     */
+    showNewQueryIndicator() {
+        const newQueryButton = document.getElementById('newQueryButton');
+        if (!newQueryButton) return;
+
+        // Efecto visual temporal
+        newQueryButton.style.background = '#27ae60';
+        newQueryButton.style.transform = 'scale(1.1)';
+
+        setTimeout(() => {
+            newQueryButton.style.background = '';
+            newQueryButton.style.transform = '';
+        }, 300);
+
+        // Mostrar mensaje temporal en el nombre de consulta
+        const queryNameInput = document.getElementById('queryName');
+        if (queryNameInput) {
+            const originalPlaceholder = queryNameInput.placeholder;
+            queryNameInput.placeholder = '✨ Nueva consulta - Dale un nombre...';
+
+            setTimeout(() => {
+                queryNameInput.placeholder = originalPlaceholder;
+            }, 3000);
+        }
+    }
+
+    /**
+     * Eliminar consulta seleccionada
+     */
+    deleteSelectedQuery() {
+        const historySelect = document.getElementById('queryHistory');
+        const selectedId = historySelect.value;
+
+        if (!selectedId) {
+            alert('Por favor selecciona una consulta para eliminar');
+            return;
+        }
+
+        const queries = this.getStoredQueries();
+        const queryName = queries[selectedId]?.name || 'consulta';
+
+        if (confirm(`¿Estás seguro de que quieres eliminar "${queryName}"?`)) {
+            delete queries[selectedId];
+            this.saveStoredQueries(queries);
+
+            // Si era la consulta actual, limpiar
+            if (this.currentQueryId === selectedId) {
+                this.createNewQuery();
+            }
+
+            this.loadHistoryList();
+            console.log('🗑️ Consulta eliminada:', queryName);
+        }
+    }
+
+    /**
+     * Cargar consulta desde el historial
+     */
+    loadQuery(queryId) {
+        const queries = this.getStoredQueries();
+        const query = queries[queryId];
+
+        if (!query) {
+            console.error('Consulta no encontrada:', queryId);
+            return;
+        }
+
+        this.currentQueryId = queryId;
+        this.loadFormData(query);
+
+        console.log('📄 Consulta cargada:', query.name);
     }
 }
-
-// Inicializar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', () => {
-    window.apiHistoryManager = new ApiHistoryManager();
-});
-
-// Exportar para uso global si es necesario
-window.ApiHistoryManager = ApiHistoryManager;
