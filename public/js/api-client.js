@@ -124,6 +124,8 @@ async function handleFormSubmit(event) {
         if (window.apiHistoryManager) {
             window.apiHistoryManager.saveCurrentQuery();
             console.log('💾 Consulta guardada en historial');
+        } else {
+            console.warn('⚠️ Manager de historial no disponible aún');
         }
     } catch (historyError) {
         console.warn('Error al guardar en historial (no afecta la ejecución):', historyError);

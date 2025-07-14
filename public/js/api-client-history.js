@@ -132,12 +132,23 @@ class ApiHistoryManager {
      * Obtener datos actuales del formulario
      */
     getCurrentFormData() {
+        const queryNameEl = document.getElementById('queryName');
+        const methodEl = document.getElementById('httpMethod');
+        const urlEl = document.getElementById('apiUrl');
+        const headersEl = document.getElementById('customHeaders');
+        const bodyEl = document.getElementById('requestBody');
+
+        if (!queryNameEl || !methodEl || !urlEl) {
+            console.error('❌ Elementos del formulario no encontrados para obtener datos');
+            throw new Error('Elementos del formulario requeridos no encontrados');
+        }
+
         return {
-            name: document.getElementById('queryName').value.trim(),
-            method: document.getElementById('httpMethod').value,
-            url: document.getElementById('apiUrl').value.trim(),
-            headers: document.getElementById('customHeaders').value.trim(),
-            body: document.getElementById('requestBody').value.trim(),
+            name: queryNameEl.value.trim(),
+            method: methodEl.value,
+            url: urlEl.value.trim(),
+            headers: headersEl ? headersEl.value.trim() : '',
+            body: bodyEl ? bodyEl.value.trim() : '',
             timestamp: Date.now()
         };
     }
@@ -158,11 +169,38 @@ class ApiHistoryManager {
     }
 
     /**
+     * Cargar consulta desde el historial
+     */
+    loadQuery(queryId) {
+        const queries = this.getStoredQueries();
+        const query = queries[queryId];
+
+        if (!query) {
+            console.error('Consulta no encontrada:', queryId);
+            return;
+        }
+
+        this.currentQueryId = queryId;
+        this.loadFormData(query);
+
+        console.log('📄 Consulta cargada:', query.name);
+    }
+
+    /**
      * Guardar consulta actual
      */
     saveCurrentQuery() {
+        console.log('💾 Iniciando guardado de consulta...');
+
         try {
             const formData = this.getCurrentFormData();
+            console.log('📝 Datos del formulario obtenidos:', {
+                name: formData.name,
+                method: formData.method,
+                url: formData.url ? formData.url.substring(0, 50) + '...' : 'sin URL',
+                hasHeaders: !!formData.headers,
+                hasBody: !!formData.body
+            });
 
             if (!formData.name) {
                 // Si no tiene nombre, generar uno automático
@@ -173,10 +211,13 @@ class ApiHistoryManager {
                     // Si la URL no es válida, usar un nombre genérico
                     formData.name = `${formData.method} Request`;
                 }
+                console.log('🔄 Nombre auto-generado:', formData.name);
             }
 
             const queries = this.getStoredQueries();
             const queryId = this.currentQueryId || this.generateQueryId(formData.name);
+
+            console.log('🆔 Query ID:', queryId, this.currentQueryId ? '(existente)' : '(nuevo)');
 
             queries[queryId] = formData;
 
@@ -190,9 +231,10 @@ class ApiHistoryManager {
             this.selectCurrentQuery();
             this.showSavedIndicator();
 
+            console.log('✅ Consulta guardada exitosamente:', queryId);
             return queryId;
         } catch (error) {
-            console.error('Error al guardar consulta:', error);
+            console.error('❌ Error al guardar consulta:', error);
             // No bloquear la ejecución si hay error en el guardado
             return null;
         }
@@ -430,49 +472,73 @@ class ApiHistoryManager {
     }
 
     /**
-     * Eliminar consulta seleccionada
+     * Mostrar indicador de guardado exitoso
      */
-    deleteSelectedQuery() {
-        const historySelect = document.getElementById('queryHistory');
-        const selectedId = historySelect.value;
+    showSavedIndicator() {
+        const queryNameInput = document.getElementById('queryName');
+        if (!queryNameInput) return;
 
-        if (!selectedId) {
-            alert('Por favor selecciona una consulta para eliminar');
-            return;
-        }
+        // Agregar clase de guardado exitoso
+        queryNameInput.classList.add('saved-indicator');
 
-        const queries = this.getStoredQueries();
-        const queryName = queries[selectedId]?.name || 'consulta';
+        setTimeout(() => {
+            queryNameInput.classList.remove('saved-indicator');
+        }, 1000);
 
-        if (confirm(`¿Estás seguro de que quieres eliminar "${queryName}"?`)) {
-            delete queries[selectedId];
-            this.saveStoredQueries(queries);
-
-            // Si era la consulta actual, limpiar
-            if (this.currentQueryId === selectedId) {
-                this.createNewQuery();
-            }
-
-            this.loadHistoryList();
-            console.log('🗑️ Consulta eliminada:', queryName);
-        }
-    }
-
-    /**
-     * Cargar consulta desde el historial
-     */
-    loadQuery(queryId) {
-        const queries = this.getStoredQueries();
-        const query = queries[queryId];
-
-        if (!query) {
-            console.error('Consulta no encontrada:', queryId);
-            return;
-        }
-
-        this.currentQueryId = queryId;
-        this.loadFormData(query);
-
-        console.log('📄 Consulta cargada:', query.name);
+        console.log('💾 Consulta guardada en historial');
     }
 }
+
+// Auto-inicialización cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Inicializando API History Manager...');
+
+    // Verificar que los elementos necesarios existan
+    const historySelect = document.getElementById('queryHistory');
+    const apiForm = document.getElementById('apiForm');
+    const queryNameInput = document.getElementById('queryName');
+
+    console.log('📋 Verificación de elementos:', {
+        historySelect: !!historySelect,
+        apiForm: !!apiForm,
+        queryNameInput: !!queryNameInput
+    });
+
+    if (historySelect && apiForm) {
+        try {
+            // Crear instancia global del manager de historial
+            window.apiHistoryManager = new ApiHistoryManager();
+            console.log('✅ API History Manager inicializado correctamente');
+
+            // Verificar que la instancia esté disponible
+            if (window.apiHistoryManager) {
+                console.log('🎯 Instancia del historial verificada y disponible globalmente');
+
+                // Función de debug para probar manualmente
+                window.debugHistory = function() {
+                    console.log('🔍 Estado del historial:');
+                    console.log('- Instancia:', !!window.apiHistoryManager);
+                    console.log('- Query actual:', window.apiHistoryManager.currentQueryId);
+                    console.log('- Consultas guardadas:', window.apiHistoryManager.getStoredQueries());
+
+                    // Test de guardado
+                    try {
+                        const testId = window.apiHistoryManager.saveCurrentQuery();
+                        console.log('✅ Test de guardado exitoso:', testId);
+                    } catch (error) {
+                        console.error('❌ Error en test de guardado:', error);
+                    }
+                };
+
+                console.log('🔧 Función window.debugHistory() disponible para testing');
+            }
+        } catch (error) {
+            console.error('❌ Error al inicializar el historial:', error);
+        }
+    } else {
+        console.warn('⚠️ No se pudo inicializar el historial - elementos no encontrados:', {
+            historySelect: !!historySelect,
+            apiForm: !!apiForm
+        });
+    }
+});

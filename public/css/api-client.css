@@ -330,10 +330,30 @@ body {
     animation: highlightChange 0.3s ease-out;
 }
 
+/* Indicador de guardado exitoso */
+.saved-indicator {
+    animation: savedIndicator 1s ease-out;
+}
+
 @keyframes highlightChange {
     0% {
         background-color: rgba(52, 152, 219, 0.1);
         border-color: var(--primary-color);
+    }
+    100% {
+        background-color: transparent;
+        border-color: var(--border-color);
+    }
+}
+
+@keyframes savedIndicator {
+    0% {
+        background-color: rgba(39, 174, 96, 0.15);
+        border-color: var(--success-color);
+    }
+    50% {
+        background-color: rgba(39, 174, 96, 0.3);
+        border-color: var(--success-color);
     }
     100% {
         background-color: transparent;
