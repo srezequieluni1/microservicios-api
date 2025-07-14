@@ -21,7 +21,8 @@
                     <span class="header-subtitle">Laravel 12</span>
                 </div>
                 <div class="header-links">
-                    <a href="/docs/api-client" class="header-link">📚 Docs</a>
+                    <a href="/docs/api-client" class="header-link">📚 Cliente</a>
+                    <a href="/docs/css-structure" class="header-link">📚 CSS Structure</a>
                 </div>
             </div>
         </div>

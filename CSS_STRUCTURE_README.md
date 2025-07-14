@@ -27,10 +27,19 @@ Los estilos del API Client han sido separados en múltiples archivos para facili
 - Adaptaciones para móviles (480px)
 - Adaptaciones para pantallas muy pequeñas (320px)
 
+### 4. `documentation-dark-theme.css` ✨ **NUEVO**
+**Tema oscuro unificado con el API Client**
+- Tema oscuro unificado con las mismas variables del API Client
+- Estilos específicos para vistas de documentación
+- Consistencia visual completa entre API Client y documentación
+- Syntax highlighting para Markdown
+- Estilos para páginas de error
+- Responsive design adaptado
+
 ## 🎨 Personalización
 
 ### Cambiar colores principales
-Edita `api-client-variables.css`:
+Edita `api-client-variables.css` o `documentation-dark-theme.css`:
 ```css
 :root {
     --primary-color: #tu-color-primario;
@@ -48,26 +57,23 @@ Edita `api-client-variables.css`:
 }
 ```
 
-### Cambiar espaciado
-```css
-:root {
-    --spacing-sm: 8px;
-    --spacing-md: 12px;
-    --spacing-lg: 14px;
-    /* ... más espaciados */
-}
-```
+## 🌙 Tema Oscuro Unificado
 
-### Tema oscuro personalizado
-```css
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg-white: #1a1a1a;
-        --text-primary: #ffffff;
-        /* ... más colores para tema oscuro */
-    }
-}
-```
+El sistema ahora cuenta con un tema oscuro completamente unificado entre:
+- **API Client** (`api-client-*.css`)
+- **Documentación** (`documentation-dark-theme.css`)
+
+### Características del tema unificado:
+- ✅ Misma paleta de colores en toda la aplicación
+- ✅ Variables CSS compartidas
+- ✅ Consistencia visual completa
+- ✅ Syntax highlighting unificado para JSON y Markdown
+- ✅ Experiencia de usuario coherente
+
+### Archivos que usan el tema unificado:
+- `resources/views/api-client.blade.php` → API Client principal
+- `resources/views/documentation/markdown.blade.php` → Documentación Markdown
+- `resources/views/documentation/not-found.blade.php` → Páginas de error 404
 
 ## 🔧 Uso en Blade
 
@@ -156,7 +162,8 @@ Para agregar nuevos estilos:
 public/css/
 ├── api-client-variables.css     # Variables y configuración
 ├── api-client.css              # Estilos principales
-└── api-client-responsive.css   # Media queries responsivas
+├── api-client-responsive.css   # Media queries responsivas
+└── documentation-dark-theme.css # Tema oscuro unificado para documentación
 
 public/js/
 └── api-client.js              # JavaScript separado
