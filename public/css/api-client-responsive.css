@@ -1,0 +1,35 @@
+/* API Client - Responsive Styles */
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 0.5rem;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .header-title h1 {
+        font-size: 1.5rem;
+    }
+    
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .request-panel,
+    .response-panel {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    .method-url-group {
+        flex-direction: column;
+    }
+    
+    .method-select {
+        margin-bottom: 0.5rem;
+    }
+}
