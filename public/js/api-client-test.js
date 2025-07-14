@@ -1,6 +1,6 @@
 /**
  * JavaScript para la página de pruebas del API Client
- * Mejora la interactividad y experiencia del usuario
+ * Incluye funcionalidad de pretty print con syntax highlighting
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -10,153 +10,415 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeUrlCopy();
     initializeAnimations();
     initializeTooltips();
+    initializeInteractivePanel();
+    initializeEndpointButtons();
 
     console.log('✅ Funcionalidades de la página de pruebas inicializadas');
 });
 
 /**
- * Permite copiar URLs al hacer clic en ellas
+ * Inicializa el panel interactivo de pruebas
  */
-function initializeUrlCopy() {
-    const testUrls = document.querySelectorAll('.test-url');
+function initializeInteractivePanel() {
+    const methodSelect = document.getElementById('testMethod');
+    const bodyGroup = document.getElementById('bodyGroup');
+    const executeButton = document.getElementById('executeTest');
 
-    testUrls.forEach(url => {
-        // Agregar indicador visual de que es clickeable
-        url.style.cursor = 'pointer';
-        url.title = 'Clic para copiar URL';
-
-        url.addEventListener('click', async function() {
-            const urlText = this.textContent.trim();
-
-            try {
-                await navigator.clipboard.writeText(urlText);
-                showCopyFeedback(this, '✅ URL copiada!');
-            } catch (error) {
-                console.warn('Error copiando URL:', error);
-                // Fallback para navegadores que no soportan clipboard API
-                fallbackCopyText(urlText);
-                showCopyFeedback(this, '📋 URL copiada!');
+    // Mostrar/ocultar body según el método HTTP
+    if (methodSelect) {
+        methodSelect.addEventListener('change', function() {
+            const method = this.value;
+            if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+                bodyGroup.style.display = 'block';
+            } else {
+                bodyGroup.style.display = 'none';
             }
         });
+    }
 
-        // Agregar hover effect mejorado
-        url.addEventListener('mouseenter', function() {
+    // Ejecutar prueba
+    if (executeButton) {
+        executeButton.addEventListener('click', executeApiTest);
+    }
+
+    // Copiar respuesta JSON
+    const copyButton = document.getElementById('copyResponseButton');
+    if (copyButton) {
+        copyButton.addEventListener('click', copyResponseToClipboard);
+    }
+}
+
+/**
+ * Inicializa los botones de "Usar Endpoint"
+ */
+function initializeEndpointButtons() {
+    const useEndpointButtons = document.querySelectorAll('.use-endpoint-button');
+
+    useEndpointButtons.forEach(button => {
+        button.addEventListener('click', function() {
             const method = this.getAttribute('data-method');
-            if (method) {
-                this.setAttribute('title', `Clic para copiar URL del endpoint ${method}`);
+            const url = this.getAttribute('data-url');
+            const headers = this.getAttribute('data-headers');
+            const body = this.getAttribute('data-body');
+
+            // Rellenar el formulario
+            document.getElementById('testMethod').value = method;
+            document.getElementById('testUrl').value = url;
+
+            if (headers) {
+                document.getElementById('testHeaders').value = headers;
             }
+
+            if (body) {
+                document.getElementById('testBody').value = body;
+                document.getElementById('bodyGroup').style.display = 'block';
+            } else {
+                document.getElementById('bodyGroup').style.display = 'none';
+            }
+
+            // Scroll al panel
+            document.querySelector('.interactive-test-panel').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+
+            // Feedback visual
+            showCopyFeedback(this, '✅ Endpoint configurado!');
         });
     });
 }
 
 /**
- * Muestra feedback visual cuando se copia una URL
+ * Ejecuta la prueba de API
  */
-function showCopyFeedback(element, message) {
-    const originalText = element.textContent;
-    const originalBg = element.style.backgroundColor;
+async function executeApiTest() {
+    const button = document.getElementById('executeTest');
+    const responsePanel = document.getElementById('responsePanel');
+    const method = document.getElementById('testMethod').value;
+    const url = document.getElementById('testUrl').value.trim();
+    const headersText = document.getElementById('testHeaders').value.trim();
+    const bodyText = document.getElementById('testBody').value.trim();
 
-    // Cambiar temporalmente el contenido y estilo
-    element.textContent = message;
-    element.style.backgroundColor = '#d4edda';
-    element.style.color = '#155724';
-    element.style.fontWeight = 'bold';
+    if (!url) {
+        alert('Por favor ingresa una URL');
+        return;
+    }
 
-    // Restaurar después de 2 segundos
-    setTimeout(() => {
-        element.textContent = originalText;
-        element.style.backgroundColor = originalBg;
-        element.style.color = '';
-        element.style.fontWeight = '';
-    }, 2000);
-}
+    // Estado de carga
+    button.classList.add('loading');
+    button.disabled = true;
 
-/**
- * Fallback para copiar texto en navegadores antiguos
- */
-function fallbackCopyText(text) {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-
-    document.body.appendChild(textArea);
-    textArea.select();
+    const startTime = performance.now();
 
     try {
-        document.execCommand('copy');
-    } catch (error) {
-        console.error('Error en fallback copy:', error);
-    }
-
-    document.body.removeChild(textArea);
-}
-
-/**
- * Inicializa animaciones mejoradas
- */
-function initializeAnimations() {
-    // Agregar animación de entrada escalonada si no está presente
-    const sections = document.querySelectorAll('.test-section');
-
-    // Observer para animaciones cuando entran en viewport
-    if ('IntersectionObserver' in window) {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        });
-
-        sections.forEach(section => {
-            // Solo aplicar si prefers-reduced-motion no está activo
-            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                section.style.opacity = '0';
-                section.style.transform = 'translateY(20px)';
-                section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                observer.observe(section);
+        // Preparar headers
+        let headers = { 'Content-Type': 'application/json' };
+        if (headersText) {
+            try {
+                const customHeaders = JSON.parse(headersText);
+                headers = { ...headers, ...customHeaders };
+            } catch (e) {
+                throw new Error('Headers JSON inválido');
             }
-        });
-    }
-}
-
-/**
- * Inicializa tooltips informativos
- */
-function initializeTooltips() {
-    // Agregar tooltips a elementos código
-    const codeElements = document.querySelectorAll('code');
-    codeElements.forEach(code => {
-        if (code.textContent.includes('status')) {
-            code.title = 'Parámetro para cambiar el código de estado HTTP de respuesta';
-        } else if (code.textContent.includes('delay')) {
-            code.title = 'Parámetro para simular demora en la respuesta (en segundos)';
-        } else if (code.textContent.includes('X-API-Key')) {
-            code.title = 'Header de autenticación requerido para este endpoint';
         }
-    });
 
-    // Agregar información contextual a los métodos HTTP
-    const methodElements = document.querySelectorAll('.test-url[data-method]');
-    methodElements.forEach(element => {
-        const method = element.getAttribute('data-method');
-        const methodInfo = {
-            'GET': 'Método para obtener datos. No requiere cuerpo de petición.',
-            'POST': 'Método para crear nuevos recursos. Requiere cuerpo de petición.',
-            'PUT': 'Método para actualizar completamente un recurso. Requiere cuerpo de petición.',
-            'DELETE': 'Método para eliminar un recurso. No requiere cuerpo de petición.',
-            'PATCH': 'Método para actualizar parcialmente un recurso. Requiere cuerpo de petición.'
+        // Preparar opciones de fetch
+        const fetchOptions = {
+            method: method,
+            headers: headers
         };
 
-        if (methodInfo[method]) {
-            element.setAttribute('title', `${method}: ${methodInfo[method]}`);
+        // Agregar body si es necesario
+        if ((method === 'POST' || method === 'PUT' || method === 'PATCH') && bodyText) {
+            try {
+                JSON.parse(bodyText); // Validar JSON
+                fetchOptions.body = bodyText;
+            } catch (e) {
+                throw new Error('Body JSON inválido');
+            }
         }
+
+        // Ejecutar petición
+        const response = await fetch(url, fetchOptions);
+        const endTime = performance.now();
+        const responseTime = Math.round(endTime - startTime);
+
+        // Obtener contenido de respuesta
+        const responseText = await response.text();
+        let responseData;
+
+        try {
+            responseData = JSON.parse(responseText);
+        } catch (e) {
+            responseData = responseText;
+        }
+
+        // Mostrar respuesta
+        displayResponse(response, responseData, responseTime);
+
+    } catch (error) {
+        const endTime = performance.now();
+        const responseTime = Math.round(endTime - startTime);
+        displayError(error, responseTime);
+    } finally {
+        // Quitar estado de carga
+        button.classList.remove('loading');
+        button.disabled = false;
+    }
+}
+
+/**
+ * Muestra la respuesta de la API con pretty print y syntax highlighting
+ */
+function displayResponse(response, data, responseTime) {
+    const responsePanel = document.getElementById('responsePanel');
+    const statusElement = document.getElementById('responseStatus');
+    const timeElement = document.getElementById('responseTime');
+    const headersElement = document.getElementById('responseHeadersContent');
+    const bodyElement = document.getElementById('responseBodyContent');
+
+    // Mostrar panel
+    responsePanel.style.display = 'block';
+
+    // Status badge
+    statusElement.textContent = `${response.status} ${response.statusText}`;
+    statusElement.className = 'status-badge';
+
+    if (response.status >= 200 && response.status < 300) {
+        statusElement.classList.add('success');
+    } else if (response.status >= 400 && response.status < 500) {
+        statusElement.classList.add('warning');
+    } else if (response.status >= 500) {
+        statusElement.classList.add('error');
+    } else {
+        statusElement.classList.add('info');
+    }
+
+    // Tiempo de respuesta
+    timeElement.textContent = `⏱️ ${responseTime}ms`;
+
+    // Headers de respuesta
+    const responseHeaders = {};
+    for (let [key, value] of response.headers.entries()) {
+        responseHeaders[key] = value;
+    }
+    headersElement.textContent = JSON.stringify(responseHeaders, null, 2);
+
+    // Body de respuesta con syntax highlighting
+    if (typeof data === 'object') {
+        bodyElement.innerHTML = formatJsonWithSyntaxHighlighting(data);
+    } else {
+        bodyElement.textContent = data;
+    }
+
+    // Scroll al panel de respuesta
+    responsePanel.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    });
+}
+
+/**
+ * Muestra errores de la petición
+ */
+function displayError(error, responseTime) {
+    const responsePanel = document.getElementById('responsePanel');
+    const statusElement = document.getElementById('responseStatus');
+    const timeElement = document.getElementById('responseTime');
+    const headersElement = document.getElementById('responseHeadersContent');
+    const bodyElement = document.getElementById('responseBodyContent');
+
+    // Mostrar panel
+    responsePanel.style.display = 'block';
+
+    // Status de error
+    statusElement.textContent = 'Error';
+    statusElement.className = 'status-badge error';
+
+    // Tiempo
+    timeElement.textContent = `⏱️ ${responseTime}ms`;
+
+    // Headers vacíos
+    headersElement.textContent = 'No headers available';
+
+    // Error en el body
+    const errorData = {
+        error: true,
+        message: error.message,
+        type: error.name || 'NetworkError'
+    };
+
+    bodyElement.innerHTML = formatJsonWithSyntaxHighlighting(errorData);
+
+    // Scroll al panel de respuesta
+    responsePanel.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    });
+}
+
+/**
+ * Formatea JSON con syntax highlighting
+ */
+function formatJsonWithSyntaxHighlighting(obj) {
+    try {
+        // Convertir objeto a JSON string con formato
+        const jsonString = JSON.stringify(obj, null, 2);
+
+        // Escapar caracteres HTML básicos
+        const escapedJson = jsonString
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+        // Aplicar syntax highlighting con patrones mejorados
+        let highlighted = escapedJson
+            // Keys (propiedades del objeto)
+            .replace(/("(?:[^"\\]|\\.)*")\s*:/g, '<span class="json-key">$1</span>:')
+            // String values
+            .replace(/:\s*("(?:[^"\\]|\\.)*")/g, ': <span class="json-string">$1</span>')
+            // Numbers (enteros y decimales)
+            .replace(/:\s*(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g, ': <span class="json-number">$1</span>')
+            // Booleans
+            .replace(/:\s*(true|false)\b/g, ': <span class="json-boolean">$1</span>')
+            // Null values
+            .replace(/:\s*(null)\b/g, ': <span class="json-null">$1</span>')
+            // Punctuation (brackets, braces, commas)
+            .replace(/([{}[\],])/g, '<span class="json-punctuation">$1</span>');
+
+        return highlighted;
+
+    } catch (error) {
+        console.error('Error en formatJsonWithSyntaxHighlighting:', error);
+        // Fallback: devolver JSON sin highlighting
+        return typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
+    }
+}
+
+/**
+ * Copia la respuesta JSON al portapapeles
+ */
+async function copyResponseToClipboard() {
+    const bodyElement = document.getElementById('responseBodyContent');
+    const button = document.getElementById('copyResponseButton');
+
+    if (!bodyElement) return;
+
+    try {
+        // Obtener el texto sin formato HTML
+        const textContent = bodyElement.textContent;
+        await navigator.clipboard.writeText(textContent);
+
+        const originalText = button.textContent;
+        button.textContent = '✅ Copiado!';
+        button.style.background = 'var(--success-color)';
+        button.style.color = 'white';
+
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.style.background = '';
+            button.style.color = '';
+        }, 2000);
+
+    } catch (error) {
+        button.textContent = '❌ Error';
+        setTimeout(() => {
+            button.textContent = '📋 Copiar JSON';
+        }, 2000);
+    }
+}
+
+/**
+ * Inicializa tooltips dinámicos
+ */
+function initializeTooltips() {
+    const tooltipElements = document.querySelectorAll('[data-tooltip]');
+
+    tooltipElements.forEach(element => {
+        element.addEventListener('mouseenter', function() {
+            const tooltipText = this.getAttribute('data-tooltip');
+            const tooltip = createTooltip(tooltipText);
+
+            document.body.appendChild(tooltip);
+            positionTooltip(this, tooltip);
+
+            this.addEventListener('mouseleave', function() {
+                if (tooltip && tooltip.parentNode) {
+                    tooltip.parentNode.removeChild(tooltip);
+                }
+            });
+        });
+    });
+}
+
+/**
+ * Crea un elemento tooltip
+ */
+function createTooltip(text) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = text;
+    tooltip.style.cssText = `
+        position: absolute;
+        background: var(--dark-2);
+        color: var(--text-light);
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        white-space: nowrap;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border: 1px solid var(--primary-color);
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+        pointer-events: none;
+    `;
+
+    // Animación de aparición
+    setTimeout(() => {
+        tooltip.style.opacity = '1';
+    }, 10);
+
+    return tooltip;
+}
+
+/**
+ * Posiciona el tooltip relativo al elemento
+ */
+function positionTooltip(element, tooltip) {
+    const rect = element.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+
+    const left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+    const top = rect.top - tooltipRect.height - 8;
+
+    tooltip.style.left = Math.max(10, left) + 'px';
+    tooltip.style.top = Math.max(10, top) + 'px';
+}
+
+/**
+ * Inicializa animaciones CSS de entrada
+ */
+function initializeAnimations() {
+    const animatedElements = document.querySelectorAll('.endpoint-card, .interactive-test-panel');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    animatedElements.forEach(element => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        element.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+        observer.observe(element);
     });
 }
 
@@ -259,3 +521,62 @@ detectUserPreferences();
 
 // Inicializar funciones de autenticación
 initializeAuthTokens();
+
+
+// Utilidad para debounce de eventos
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+/**
+ * Utilidad para formatear tiempo
+ */
+function formatTime(ms) {
+    if (ms < 1000) {
+        return `${ms}ms`;
+    } else if (ms < 60000) {
+        return `${(ms / 1000).toFixed(1)}s`;
+    } else {
+        return `${Math.floor(ms / 60000)}m ${Math.floor((ms % 60000) / 1000)}s`;
+    }
+}
+
+/**
+ * Función de debug para probar el syntax highlighting
+ */
+function testSyntaxHighlighting() {
+    const testObject = {
+        "message": "Test successful",
+        "data": {
+            "id": 123,
+            "name": "John Doe",
+            "active": true,
+            "score": 95.5,
+            "tags": ["user", "admin"],
+            "metadata": null
+        },
+        "success": true,
+        "timestamp": "2025-07-14T12:00:00Z"
+    };
+
+    console.log('🧪 Testing JSON syntax highlighting...');
+    console.log('Original object:', testObject);
+
+    const formatted = formatJsonWithSyntaxHighlighting(testObject);
+    console.log('Formatted HTML:', formatted);
+
+    return formatted;
+}
+
+// Hacer la función disponible globalmente para debugging
+window.testSyntaxHighlighting = testSyntaxHighlighting;
+
+console.log('🔧 Debug function available: window.testSyntaxHighlighting()');

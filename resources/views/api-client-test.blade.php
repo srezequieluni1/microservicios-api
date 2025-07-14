@@ -42,43 +42,106 @@
         <h2 class="section-title">🧪 Endpoints de Prueba</h2>
         <p class="section-description">Usa estos endpoints para probar el cliente API:</p>
 
+        <!-- Panel de prueba interactivo -->
+        <div class="interactive-test-panel">
+            <div class="test-form">
+                <div class="form-group">
+                    <label class="form-label">Método HTTP</label>
+                    <select id="testMethod" class="form-control">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="DELETE">DELETE</option>
+                        <option value="PATCH">PATCH</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">URL del Endpoint</label>
+                    <input type="text" id="testUrl" class="form-control" placeholder="Selecciona un endpoint de abajo o escribe una URL personalizada">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Headers (JSON)</label>
+                    <textarea id="testHeaders" class="form-control" placeholder='{"Authorization": "Bearer demo-token-123"}' rows="3"></textarea>
+                </div>
+                <div class="form-group" id="bodyGroup" style="display: none;">
+                    <label class="form-label">Request Body (JSON)</label>
+                    <textarea id="testBody" class="form-control" placeholder='{"key": "value"}' rows="4"></textarea>
+                </div>
+                <button id="executeTest" class="primary-button">
+                    <span class="button-text">🚀 Ejecutar Test</span>
+                    <div class="loading-spinner" style="display: none;">⏳</div>
+                </button>
+            </div>
+
+            <!-- Panel de respuesta -->
+            <div class="response-panel" id="responsePanel" style="display: none;">
+                <div class="response-header">
+                    <h3>📊 Respuesta</h3>
+                    <div class="response-meta">
+                        <span id="responseStatus" class="status-badge"></span>
+                        <span id="responseTime" class="response-time"></span>
+                    </div>
+                </div>
+
+                <div class="response-content">
+                    <div class="response-headers">
+                        <h4>Headers de Respuesta</h4>
+                        <pre id="responseHeadersContent" class="headers-display"></pre>
+                    </div>
+
+                    <div class="response-body">
+                        <div class="response-body-header">
+                            <h4>Response Body</h4>
+                            <button id="copyResponseButton" class="copy-button">📋 Copiar JSON</button>
+                        </div>
+                        <pre id="responseBodyContent" class="json-display"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="endpoints-grid">
             <div class="endpoint-card">
                 <h3 class="endpoint-title">GET - Ejemplo básico</h3>
-                <div class="test-url" data-method="GET">{{ url('/api/test/get-example') }}</div>
+                <div class="test-url" data-method="GET" data-url="{{ url('/api/test/get-example') }}">{{ url('/api/test/get-example') }}</div>
                 <p class="endpoint-description">Petición GET simple para probar conectividad básica.</p>
+                <button class="use-endpoint-button" data-method="GET" data-url="{{ url('/api/test/get-example') }}">🎯 Usar Endpoint</button>
             </div>
 
             <div class="endpoint-card">
                 <h3 class="endpoint-title">POST - Enviar datos</h3>
-                <div class="test-url" data-method="POST">{{ url('/api/test/post-example') }}</div>
+                <div class="test-url" data-method="POST" data-url="{{ url('/api/test/post-example') }}">{{ url('/api/test/post-example') }}</div>
                 <p class="endpoint-description"><strong>Cuerpo de ejemplo:</strong></p>
                 <pre class="code-block">{"nombre": "Juan", "email": "juan@ejemplo.com"}</pre>
+                <button class="use-endpoint-button" data-method="POST" data-url="{{ url('/api/test/post-example') }}" data-body='{"nombre": "Juan", "email": "juan@ejemplo.com"}'>🎯 Usar Endpoint</button>
             </div>
 
             <div class="endpoint-card">
                 <h3 class="endpoint-title">PUT - Actualizar datos</h3>
-                <div class="test-url" data-method="PUT">{{ url('/api/test/put-example/123') }}</div>
+                <div class="test-url" data-method="PUT" data-url="{{ url('/api/test/put-example/123') }}">{{ url('/api/test/put-example/123') }}</div>
                 <p class="endpoint-description"><strong>Cuerpo de ejemplo:</strong></p>
                 <pre class="code-block">{"nombre": "Juan Actualizado", "email": "juan.nuevo@ejemplo.com"}</pre>
+                <button class="use-endpoint-button" data-method="PUT" data-url="{{ url('/api/test/put-example/123') }}" data-body='{"nombre": "Juan Actualizado", "email": "juan.nuevo@ejemplo.com"}'>🎯 Usar Endpoint</button>
             </div>
 
             <div class="endpoint-card">
                 <h3 class="endpoint-title">DELETE - Eliminar recurso</h3>
-                <div class="test-url" data-method="DELETE">{{ url('/api/test/delete-example/123') }}</div>
+                <div class="test-url" data-method="DELETE" data-url="{{ url('/api/test/delete-example/123') }}">{{ url('/api/test/delete-example/123') }}</div>
                 <p class="endpoint-description">Elimina un recurso específico por ID.</p>
+                <button class="use-endpoint-button" data-method="DELETE" data-url="{{ url('/api/test/delete-example/123') }}">🎯 Usar Endpoint</button>
             </div>
 
             <div class="endpoint-card">
                 <h3 class="endpoint-title">PATCH - Actualización parcial</h3>
-                <div class="test-url" data-method="PATCH">{{ url('/api/test/patch-example/123') }}</div>
+                <div class="test-url" data-method="PATCH" data-url="{{ url('/api/test/patch-example/123') }}">{{ url('/api/test/patch-example/123') }}</div>
                 <p class="endpoint-description"><strong>Cuerpo de ejemplo:</strong></p>
                 <pre class="code-block">{"email": "juan.parcial@ejemplo.com"}</pre>
+                <button class="use-endpoint-button" data-method="PATCH" data-url="{{ url('/api/test/patch-example/123') }}" data-body='{"email": "juan.parcial@ejemplo.com"}'>🎯 Usar Endpoint</button>
             </div>
 
             <div class="endpoint-card">
                 <h3 class="endpoint-title">🔒 Endpoint protegido - Autenticación Bearer</h3>
-                <div class="test-url" data-method="GET">{{ url('/api/test/protected') }}</div>
+                <div class="test-url" data-method="GET" data-url="{{ url('/api/test/protected') }}">{{ url('/api/test/protected') }}</div>
                 <p class="endpoint-description"><strong>Header requerido:</strong> <code>Authorization: Bearer demo-token-123</code></p>
                 <div class="auth-examples">
                     <p><strong>Tokens válidos para pruebas:</strong></p>
@@ -89,30 +152,35 @@
                     </ul>
                     <p><em>💡 Tip: Copia cualquiera de estos tokens y úsalo como: "Bearer [token]"</em></p>
                 </div>
+                <button class="use-endpoint-button" data-method="GET" data-url="{{ url('/api/test/protected') }}" data-headers='{"Authorization": "Bearer demo-token-123"}'>🎯 Usar Endpoint</button>
             </div>
 
             <div class="endpoint-card">
                 <h3 class="endpoint-title">Códigos de estado</h3>
-                <div class="test-url" data-method="GET">{{ url('/api/test/status?status=200') }}</div>
+                <div class="test-url" data-method="GET" data-url="{{ url('/api/test/status?status=200') }}">{{ url('/api/test/status?status=200') }}</div>
                 <p class="endpoint-description">Cambia el parámetro <code>status</code> por: 200, 201, 400, 404, 500, etc.</p>
+                <button class="use-endpoint-button" data-method="GET" data-url="{{ url('/api/test/status?status=200') }}">🎯 Usar Endpoint</button>
             </div>
 
             <div class="endpoint-card">
                 <h3 class="endpoint-title">Prueba de demora</h3>
-                <div class="test-url" data-method="GET">{{ url('/api/test/delay?delay=2') }}</div>
+                <div class="test-url" data-method="GET" data-url="{{ url('/api/test/delay?delay=2') }}">{{ url('/api/test/delay?delay=2') }}</div>
                 <p class="endpoint-description">Cambia el parámetro <code>delay</code> (0-10 segundos)</p>
+                <button class="use-endpoint-button" data-method="GET" data-url="{{ url('/api/test/delay?delay=2') }}">🎯 Usar Endpoint</button>
             </div>
 
             <div class="endpoint-card">
                 <h3 class="endpoint-title">Headers requeridos</h3>
-                <div class="test-url" data-method="GET">{{ url('/api/test/headers') }}</div>
+                <div class="test-url" data-method="GET" data-url="{{ url('/api/test/headers') }}">{{ url('/api/test/headers') }}</div>
                 <p class="endpoint-description"><strong>Header requerido:</strong> <code>X-API-Key: tu-api-key-aqui</code></p>
+                <button class="use-endpoint-button" data-method="GET" data-url="{{ url('/api/test/headers') }}" data-headers='{"X-API-Key": "tu-api-key-aqui"}'>🎯 Usar Endpoint</button>
             </div>
 
             <div class="endpoint-card">
                 <h3 class="endpoint-title">Lista de usuarios</h3>
-                <div class="test-url" data-method="GET">{{ url('/api/test/users') }}</div>
+                <div class="test-url" data-method="GET" data-url="{{ url('/api/test/users') }}">{{ url('/api/test/users') }}</div>
                 <p class="endpoint-description">Obtiene una lista de usuarios de ejemplo.</p>
+                <button class="use-endpoint-button" data-method="GET" data-url="{{ url('/api/test/users') }}">🎯 Usar Endpoint</button>
             </div>
         </div>
     </div>
