@@ -34,9 +34,9 @@
             // Obtener el contenido raw del Markdown
             let markdownText = content.textContent || content.innerText;
 
-            console.log('Raw markdown length:', markdownText.length);
-            console.log('First 200 chars:', markdownText.substring(0, 200));
-            console.log('Starts with #?', markdownText.trim().startsWith('#'));
+            // console.log('Raw markdown length:', markdownText.length);
+            // console.log('First 200 chars:', markdownText.substring(0, 200));
+            // console.log('Starts with #?', markdownText.trim().startsWith('#'));
 
             // Asegurar que tenemos el contenido en formato raw
             if (markdownText.trim().length === 0) {
@@ -45,7 +45,7 @@
                 return;
             }
 
-            console.log('Markdown text to parse:', markdownText.substring(0, 100) + '...');
+            // console.log('Markdown text to parse:', markdownText.substring(0, 100) + '...');
 
             // Configurar Marked.js
             marked.setOptions({
@@ -110,7 +110,7 @@
             // Renderizar el Markdown
             try {
                 const html = marked.parse(markdownText);
-                console.log('Rendered HTML:', html.substring(0, 200) + '...');
+                // console.log('Rendered HTML:', html.substring(0, 200) + '...');
 
                 renderedContent.innerHTML = html;
                 renderedContent.classList.add('markdown-content');
