@@ -20,7 +20,6 @@
                     <span class="header-subtitle">Laravel 12</span>
                 </div>
                 <div class="header-links">
-                    <a href="/api-client" class="header-link">🚀 API Client</a>
                     <a href="/docs/test-page" class="header-link">📚 Documentación</a>
                 </div>
             </div>
@@ -32,7 +31,7 @@
 
     <div class="test-section">
         <h2 class="section-title">✅ Cliente API</h2>
-        <p class="section-description">Una herramienta completa para probar endpoints de API con interfaz moderna y responsiva.</p>
+        <p class="section-description">Una herramienta integrada para probar endpoints de API.</p>
         <div class="section-actions">
             <a href="/api-client" class="primary-button">Abrir API Client</a>
         </div>
@@ -229,24 +228,6 @@
   "Content-Type": "application/json"
 }</pre>
             <em>💡 Los headers se agregan en formato JSON en el campo "Headers" del cliente API</em>
-        </div>
-    </div>
-
-    <div class="test-section">
-        <h2 class="section-title">🎨 Características</h2>
-        <div class="features-grid">
-            <div class="feature-item">✅ Interfaz moderna y responsiva</div>
-            <div class="feature-item">✅ Soporte para todos los métodos HTTP</div>
-            <div class="feature-item">✅ Syntax highlighting para JSON</div>
-            <div class="feature-item">✅ Validación en tiempo real</div>
-            <div class="feature-item">✅ Estados de carga y feedback visual</div>
-            <div class="feature-item">✅ Información detallada de respuesta</div>
-            <div class="feature-item">✅ Función de copiado al portapapeles</div>
-            <div class="feature-item">✅ Manejo robusto de errores</div>
-            <div class="feature-item">✅ Design responsivo para móviles</div>
-            <div class="feature-item">🔒 Soporte para autenticación Bearer Token</div>
-            <div class="feature-item">🔑 Ejemplos de endpoints protegidos</div>
-            <div class="feature-item">📊 Manejo de códigos de estado HTTP</div>
         </div>
     </div>
 

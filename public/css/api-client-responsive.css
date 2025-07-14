@@ -6,6 +6,7 @@
     }
 
     .header-content {
+        margin-left: 1rem;
         flex-direction: column;
         text-align: center;
         gap: 1rem;

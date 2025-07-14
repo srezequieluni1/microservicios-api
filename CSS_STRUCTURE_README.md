@@ -52,8 +52,8 @@ Edita `api-client-variables.css`:
 ```css
 :root {
     --spacing-sm: 8px;
-    --spacing-md: 16px;
-    --spacing-lg: 24px;
+    --spacing-md: 12px;
+    --spacing-lg: 14px;
     /* ... más espaciados */
 }
 ```
