@@ -18,7 +18,7 @@ Una herramienta visual completa para probar endpoints de API directamente desde 
 ## 📋 Cómo usar
 
 ### Acceso
-Visita: `http://tu-dominio/api-client`
+Visita: `http://127.0.0.1:8000/api-client`
 
 ### Campos disponibles
 

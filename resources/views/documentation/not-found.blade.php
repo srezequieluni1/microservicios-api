@@ -140,8 +140,7 @@
             <p>El archivo de documentación que intentas acceder no existe o no se pudo leer.</p>
 
             <div class="actions">
-                <a href="/api-client-test" class="button button-primary">← Volver a la página de pruebas</a>
-                <a href="/api-client" class="button button-secondary">🚀 Ir al API Client</a>
+                <a href="/api-client" class="button button-primary">← Volver al API Client</a>
             </div>
         </div>
     </div>

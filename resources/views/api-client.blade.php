@@ -21,7 +21,6 @@
                     <span class="header-subtitle">Laravel 12</span>
                 </div>
                 <div class="header-links">
-                    <a href="/api-client-test" class="header-link">🧪 Pruebas</a>
                     <a href="/docs/history" class="header-link">📚 Historial</a>
                 </div>
             </div>

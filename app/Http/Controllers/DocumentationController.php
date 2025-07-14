@@ -26,7 +26,7 @@ class DocumentationController extends Controller
         return view('documentation.markdown', [
             'title' => 'Documentación API Client',
             'content' => $content,
-            'backUrl' => '/api-client-test'
+            'backUrl' => '/api-client'
         ]);
     }
 
@@ -49,28 +49,7 @@ class DocumentationController extends Controller
         return view('documentation.markdown', [
             'title' => 'Documentación Estructura CSS',
             'content' => $content,
-            'backUrl' => '/api-client-test'
-        ]);
-    }    /**
-     * Mostrar la documentación del Test Page
-     */
-    public function testPageDocs()
-    {
-        $readmePath = base_path('API_CLIENT_TEST_README.md');
-
-        if (!File::exists($readmePath)) {
-            return response()->view('documentation.not-found', [
-                'title' => 'Documentación Test Page',
-                'file' => 'API_CLIENT_TEST_README.md'
-            ], 404);
-        }
-
-        $content = File::get($readmePath);
-
-        return view('documentation.markdown', [
-            'title' => 'Documentación Test Page',
-            'content' => $content,
-            'backUrl' => '/api-client-test'
+            'backUrl' => '/api-client'
         ]);
     }
 
