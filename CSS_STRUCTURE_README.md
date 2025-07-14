@@ -36,6 +36,30 @@ Los estilos del API Client han sido separados en múltiples archivos para facili
 - Estilos para páginas de error
 - Responsive design adaptado
 
+## 📝 Renderizador de Markdown
+
+### Librería Utilizada: Marked.js + Highlight.js
+
+El sistema ahora utiliza **Marked.js** como renderizador principal de Markdown junto con **Highlight.js** para syntax highlighting.
+
+#### Características:
+- ✅ **Marked.js v11.1.1**: Renderizador robusto y rápido
+- ✅ **Highlight.js v11.9.0**: Syntax highlighting para 190+ lenguajes
+- ✅ **GitHub Flavored Markdown**: Soporte completo para GFM
+- ✅ **Tema oscuro integrado**: Estilos unificados con el API Client
+- ✅ **Performance optimizada**: Carga desde CDN
+- ✅ **Responsive design**: Funciona en todos los dispositivos
+
+#### Archivos relacionados:
+- `resources/views/documentation/markdown.blade.php` → Vista principal de documentación
+- `public/css/documentation-dark-theme.css` → Estilos para Marked.js y Highlight.js
+- `MARKDOWN_TEST.md` → Archivo de prueba con ejemplos
+
+#### CDN utilizados:
+- Marked.js: `https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js`
+- Highlight.js JS: `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js`
+- Highlight.js CSS: `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css`
+
 ## 🎨 Personalización
 
 ### Cambiar colores principales

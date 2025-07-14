@@ -75,4 +75,27 @@ class DocumentationController extends Controller
             'backUrl' => '/api-client'
         ]);
     }
+
+    /**
+     * Página de prueba para el renderizador Markdown
+     */
+    public function testMarkdown()
+    {
+        $readmePath = base_path('TEST_SIMPLE.md');
+
+        if (!File::exists($readmePath)) {
+            return response()->view('documentation.not-found', [
+                'title' => 'Test Markdown',
+                'file' => 'TEST_SIMPLE.md'
+            ], 404);
+        }
+
+        $content = File::get($readmePath);
+
+        return view('documentation.markdown', [
+            'title' => 'Test Markdown Renderer',
+            'content' => $content,
+            'backUrl' => '/api-client'
+        ]);
+    }
 }

@@ -7,6 +7,13 @@
 
     <!-- CSS Unificado para tema oscuro de documentación -->
     <link rel="stylesheet" href="{{ asset('css/documentation-dark-theme.css') }}">
+
+    <!-- Marked.js - Renderizador de Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+
+    <!-- Highlight.js para syntax highlighting en código -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
     <div class="container">
@@ -15,85 +22,117 @@
             <a href="{{ $backUrl }}" class="back-button">← Volver</a>
         </div>
         <div class="content">
-            <div class="markdown-content" id="markdown-content">
-                {{ $content }}
-            </div>
+            <div class="markdown-content" id="markdown-content" style="white-space: pre-wrap; display: none;">{{ $content }}</div>
+            <div id="rendered-content" class="markdown-content"></div>
         </div>
-    </div>
-
-    <script>
-        // Procesador de Markdown mejorado
+    </div>    <script>
+        // Configuración y renderizado con Marked.js
         document.addEventListener('DOMContentLoaded', function() {
             const content = document.getElementById('markdown-content');
-            let html = content.textContent || content.innerText;
+            const renderedContent = document.getElementById('rendered-content');
 
-            // Escapar caracteres HTML primero
-            html = html.replace(/&/g, '&amp;')
-                      .replace(/</g, '&lt;')
-                      .replace(/>/g, '&gt;')
-                      .replace(/"/g, '&quot;')
-                      .replace(/'/g, '&#39;');
+            // Obtener el contenido raw del Markdown
+            let markdownText = content.textContent || content.innerText;
 
-            // Convertir bloques de código primero (para evitar conflictos)
-            html = html.replace(/```(\w+)?\n([\s\S]*?)\n```/gim, '<pre><code>$2</code></pre>');
-            html = html.replace(/```([\s\S]*?)```/gim, '<pre><code>$1</code></pre>');
+            console.log('Raw markdown length:', markdownText.length);
+            console.log('First 200 chars:', markdownText.substring(0, 200));
+            console.log('Starts with #?', markdownText.trim().startsWith('#'));
 
-            // Convertir headers
-            html = html.replace(/^#### (.*$)/gim, '<h4>$1</h4>');
-            html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-            html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-            html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-
-            // Convertir texto en negrita
-            html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
-
-            // Convertir texto en cursiva
-            html = html.replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/gim, '<em>$1</em>');
-
-            // Convertir código inline (evitar conflictos con bloques)
-            html = html.replace(/(?<!`)`([^`\n]+?)`(?!`)/gim, '<code>$1</code>');
-
-            // Convertir enlaces
-            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" target="_blank">$1</a>');
-
-            // Convertir listas
-            html = html.replace(/^\* (.*$)/gim, '___LI___$1___/LI___');
-            html = html.replace(/^\- (.*$)/gim, '___LI___$1___/LI___');
-            html = html.replace(/^\d+\. (.*$)/gim, '___OLI___$1___/OLI___');
-
-            // Convertir saltos de línea dobles en párrafos
-            html = html.replace(/\n\n/g, '___PARAGRAPH___');
-            html = html.replace(/\n/g, ' ');
-            html = html.replace(/___PARAGRAPH___/g, '</p><p>');
-
-            // Envolver el contenido en párrafos
-            if (!html.startsWith('<')) {
-                html = '<p>' + html + '</p>';
+            // Asegurar que tenemos el contenido en formato raw
+            if (markdownText.trim().length === 0) {
+                console.error('No markdown content found');
+                renderedContent.innerHTML = '<div class="error-message">No se encontró contenido para renderizar</div>';
+                return;
             }
 
-            // Procesar listas
-            html = html.replace(/___LI___(.*?)___\/LI___/g, '<li>$1</li>');
-            html = html.replace(/___OLI___(.*?)___\/OLI___/g, '<li>$1</li>');
+            console.log('Markdown text to parse:', markdownText.substring(0, 100) + '...');
 
-            // Envolver elementos li consecutivos
-            html = html.replace(/(<li>.*?<\/li>\s*)+/gim, function(match) {
-                if (match.includes('___OLI___')) {
-                    return '<ol>' + match + '</ol>';
-                }
-                return '<ul>' + match + '</ul>';
+            // Configurar Marked.js
+            marked.setOptions({
+                highlight: function(code, lang) {
+                    // Si highlight.js reconoce el lenguaje, lo resalta
+                    if (lang && hljs.getLanguage(lang)) {
+                        try {
+                            return hljs.highlight(code, { language: lang }).value;
+                        } catch (err) {
+                            console.warn('Error highlighting code:', err);
+                        }
+                    }
+                    // Si no, usa auto-detección
+                    try {
+                        return hljs.highlightAuto(code).value;
+                    } catch (err) {
+                        console.warn('Error auto-highlighting code:', err);
+                        return code;
+                    }
+                },
+                langPrefix: 'hljs language-',
+                breaks: true,
+                gfm: true,
+                headerIds: true,
+                mangle: false,
+                sanitize: false
             });
 
-            // Limpiar párrafos vacíos
-            html = html.replace(/<p><\/p>/g, '');
-            html = html.replace(/<p>\s*<\/p>/g, '');
+            // Configurar un renderer personalizado para mantener el estilo del tema oscuro
+            const renderer = new marked.Renderer();
 
-            // Ajustar elementos de bloque dentro de párrafos
-            html = html.replace(/<p>(<h[1-6]>.*?<\/h[1-6]>)<\/p>/g, '$1');
-            html = html.replace(/<p>(<pre>.*?<\/pre>)<\/p>/g, '$1');
-            html = html.replace(/<p>(<ul>.*?<\/ul>)<\/p>/g, '$1');
-            html = html.replace(/<p>(<ol>.*?<\/ol>)<\/p>/g, '$1');
+            // Personalizar el renderizado de headers
+            renderer.heading = function(text, level, raw) {
+                const id = raw.toLowerCase().replace(/[^\w]+/g, '-');
+                return `<h${level} id="${id}" class="markdown-heading">${text}</h${level}>`;
+            };
 
-            content.innerHTML = html;
+            // Personalizar el renderizado de código inline
+            renderer.codespan = function(code) {
+                return `<code class="inline-code">${code}</code>`;
+            };
+
+            // Personalizar el renderizado de enlaces
+            renderer.link = function(href, title, text) {
+                const titleAttr = title ? ` title="${title}"` : '';
+                const target = href.startsWith('http') ? ' target="_blank" rel="noopener"' : '';
+                return `<a href="${href}"${titleAttr}${target}>${text}</a>`;
+            };
+
+            // Personalizar el renderizado de tablas
+            renderer.table = function(header, body) {
+                return `<div class="table-wrapper"><table><thead>${header}</thead><tbody>${body}</tbody></table></div>`;
+            };
+
+            // Personalizar blockquotes
+            renderer.blockquote = function(quote) {
+                return `<blockquote class="markdown-blockquote">${quote}</blockquote>`;
+            };
+
+            marked.use({ renderer });
+
+            // Renderizar el Markdown
+            try {
+                const html = marked.parse(markdownText);
+                console.log('Rendered HTML:', html.substring(0, 200) + '...');
+
+                renderedContent.innerHTML = html;
+                renderedContent.classList.add('markdown-content');
+
+                // Aplicar highlight.js a los bloques de código que no se procesaron
+                renderedContent.querySelectorAll('pre code').forEach((block) => {
+                    if (!block.classList.contains('hljs')) {
+                        hljs.highlightElement(block);
+                    }
+                });
+
+                // Añadir clases para el tema oscuro
+                renderedContent.querySelectorAll('code:not(.hljs)').forEach((code) => {
+                    if (code.parentElement.tagName !== 'PRE') {
+                        code.classList.add('inline-code');
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error rendering Markdown:', error);
+                renderedContent.innerHTML = `<div class="error-message">Error al renderizar el contenido Markdown: ${error.message}</div>`;
+            }
         });
     </script>
 </body>
