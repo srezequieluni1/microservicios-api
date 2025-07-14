@@ -40,6 +40,31 @@ body {
     opacity: 0.9;
 }
 
+.header-links {
+    margin-top: var(--spacing-md);
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.header-link {
+    background: rgba(255,255,255,0.2);
+    color: var(--text-light);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    transition: all var(--transition-normal);
+    backdrop-filter: blur(5px);
+}
+
+.header-link:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-1px);
+}
+
 .main-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -138,6 +163,101 @@ body {
 .method-select option[value="PUT"] { color: var(--warning-color); }
 .method-select option[value="DELETE"] { color: var(--error-color); }
 .method-select option[value="PATCH"] { color: #9b59b6; }
+
+/* Estilos para el historial de consultas */
+.form-hint {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.history-group {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.delete-history-button {
+    background: var(--error-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-md);
+    padding: 12px;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 44px;
+    opacity: 0.7;
+}
+
+.delete-history-button:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+    opacity: 1;
+    box-shadow: var(--shadow-md);
+}
+
+.delete-history-button:active {
+    transform: translateY(0);
+}
+
+.delete-history-button:disabled {
+    background: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.5;
+    transform: none;
+}
+
+.delete-history-button svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Indicadores visuales para consultas guardadas */
+.query-saved-indicator {
+    position: absolute;
+    top: -8px;
+    right: 8px;
+    background: var(--success-color);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all var(--transition-normal);
+}
+
+.query-saved-indicator.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.form-group {
+    position: relative;
+}
+
+/* Animación para resaltar cambios */
+.field-changed {
+    animation: highlightChange 0.3s ease-out;
+}
+
+@keyframes highlightChange {
+    0% {
+        background-color: rgba(52, 152, 219, 0.1);
+        border-color: var(--primary-color);
+    }
+    100% {
+        background-color: transparent;
+        border-color: var(--border-color);
+    }
+}
 
 .textarea-control {
     min-height: var(--textarea-min-height);

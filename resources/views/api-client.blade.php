@@ -17,6 +17,10 @@
         <div class="header">
             <h1>API Client</h1>
             <p>Herramienta para probar endpoints de API - Laravel 12</p>
+            <div class="header-links">
+                <a href="/api-client-test" class="header-link">🧪 Página de Pruebas</a>
+                <a href="/docs/history" class="header-link">📚 Ayuda del Historial</a>
+            </div>
         </div>
 
         <!-- Contenido principal -->
@@ -26,6 +30,34 @@
                 <h2 class="panel-title">Request</h2>
 
                 <form id="apiForm">
+                    <!-- Nombre de la consulta -->
+                    <div class="form-group">
+                        <label class="form-label" for="queryName">Nombre de la consulta</label>
+                        <input
+                            type="text"
+                            id="queryName"
+                            class="form-control"
+                            placeholder="Mi consulta API"
+                            maxlength="100"
+                        >
+                        <div class="form-hint">Dale un nombre identificativo a esta consulta para guardarla en el historial</div>
+                    </div>
+
+                    <!-- Historial de consultas -->
+                    <div class="form-group">
+                        <label class="form-label">Historial de consultas</label>
+                        <div class="history-group">
+                            <select id="queryHistory" class="form-control">
+                                <option value="">Seleccionar consulta previa...</option>
+                            </select>
+                            <button type="button" id="deleteHistoryButton" class="delete-history-button" title="Eliminar consulta seleccionada">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14ZM10 11v6M14 11v6"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Método HTTP y URL -->
                     <div class="form-group">
                         <label class="form-label">Endpoint</label>
@@ -121,5 +153,6 @@
 
     <!-- JavaScript -->
     <script src="{{ asset('js/api-client.js') }}"></script>
+    <script src="{{ asset('js/api-client-history.js') }}"></script>
 </body>
 </html>

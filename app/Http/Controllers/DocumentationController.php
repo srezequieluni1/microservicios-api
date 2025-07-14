@@ -51,9 +51,7 @@ class DocumentationController extends Controller
             'content' => $content,
             'backUrl' => '/api-client-test'
         ]);
-    }
-
-    /**
+    }    /**
      * Mostrar la documentación del Test Page
      */
     public function testPageDocs()
@@ -73,6 +71,29 @@ class DocumentationController extends Controller
             'title' => 'Documentación Test Page',
             'content' => $content,
             'backUrl' => '/api-client-test'
+        ]);
+    }
+
+    /**
+     * Mostrar la documentación del Historial de Consultas
+     */
+    public function historyDocs()
+    {
+        $readmePath = base_path('API_CLIENT_HISTORY_README.md');
+
+        if (!File::exists($readmePath)) {
+            return response()->view('documentation.not-found', [
+                'title' => 'Documentación Historial',
+                'file' => 'API_CLIENT_HISTORY_README.md'
+            ], 404);
+        }
+
+        $content = File::get($readmePath);
+
+        return view('documentation.markdown', [
+            'title' => 'Documentación Historial de Consultas',
+            'content' => $content,
+            'backUrl' => '/api-client'
         ]);
     }
 }

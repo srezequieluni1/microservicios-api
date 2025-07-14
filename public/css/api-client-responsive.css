@@ -1,4 +1,203 @@
-/* Responsive design */
+/* Estilos generales */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7fa;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+    color: #666;
+}
+
+/* Contenedor principal */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Panel de solicitud */
+.request-panel {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e1e5e9;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.request-panel h2 {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.request-panel .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.request-panel .form-label {
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.request-panel .form-control {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.request-panel .execute-button {
+    padding: 10px;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.request-panel .execute-button:hover {
+    background-color: #0056b3;
+}
+
+/* Panel de respuesta */
+.response-panel {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e1e5e9;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.response-panel h2 {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.response-info {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 10px;
+}
+
+.response-info .status-badge {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    color: #fff;
+    background-color: #28a745;
+}
+
+.response-info .response-time {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    color: #fff;
+    background-color: #007bff;
+}
+
+.json-content, .headers-content {
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #fff;
+    overflow-x: auto;
+}
+
+/* Estilos del encabezado */
+.header {
+    background-color: #007bff;
+    color: #fff;
+    padding: 20px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    font-size: 2rem;
+}
+
+.header-links {
+    display: flex;
+    gap: 16px;
+}
+
+.header-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.header-link:hover {
+    text-decoration: underline;
+}
+
+/* Estilos para el historial de consultas */
+.history-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.history-item {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e1e5e9;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.history-item h3 {
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.history-item p {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.delete-history-button {
+    padding: 10px;
+    font-size: 0.9rem;
+    color: #fff;
+    background-color: #dc3545;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.delete-history-button:hover {
+    background-color: #c82333;
+}
+
+/* Diseño responsivo */
 @media (max-width: 768px) {
     .main-content {
         grid-template-columns: 1fr;
@@ -20,6 +219,17 @@
 
     .header h1 {
         font-size: 2rem;
+    }
+
+    .header-links {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .header-link {
+        width: 200px;
+        text-align: center;
     }
 
     .container {
@@ -48,6 +258,30 @@
 
     .form-group {
         margin-bottom: 15px;
+    }
+
+    /* Responsive para historial de consultas */
+    .history-group {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .delete-history-button {
+        width: 100%;
+        justify-content: center;
+        padding: 12px;
+    }
+
+    .form-hint {
+        font-size: 0.8rem;
+    }
+
+    .query-saved-indicator {
+        position: relative;
+        top: 5px;
+        right: 0;
+        margin-top: 5px;
+        align-self: flex-start;
     }
 
     .panel-title {
