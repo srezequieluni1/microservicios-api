@@ -45,7 +45,6 @@ class AuthController extends Controller
             'data' => [
                 'user' => $user,
                 'token' => $token,
-                'token_type' => 'Bearer',
             ],
             'message' => 'User registered successfully. Please check your email to verify your account.',
         ], 201);
@@ -83,7 +82,6 @@ class AuthController extends Controller
             'data' => [
                 'user' => $user,
                 'token' => $token,
-                'token_type' => 'Bearer',
             ],
             'message' => 'Login successful',
         ]);
