@@ -22,8 +22,10 @@ it('permite registrar y loguear un usuario', function () {
     ]);
 
     $response->assertStatus(200);
-    expect($response->json())->toHaveKey('token');
-    echo "\nLogin OK con token: " . $response->json('token');
+    expect($response->json())->toHaveKeys(['success', 'data', 'message']);
+    expect($response->json('success'))->toBe(true);
+    expect($response->json('data'))->toHaveKey('token');
+    echo "\nLogin OK con token: " . $response->json('data.token');
 });
 
 it('envía email de verificación al registrar usuario', function () {

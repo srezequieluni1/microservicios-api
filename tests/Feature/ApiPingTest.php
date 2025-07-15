@@ -5,6 +5,10 @@ it('api ping returns successful response', function () {
 
     $response->assertStatus(200);
     $response->assertJson([
-        'status' => 'ok'
+        'success' => true,
+        'data' => [
+            'status' => 'ok'
+        ],
+        'message' => 'API is running correctly'
     ]);
 });

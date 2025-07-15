@@ -21,6 +21,35 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## API Documentation
+
+Este proyecto incluye una API RESTful con respuestas JSON estandarizadas. Para información detallada sobre los endpoints y estructuras de respuesta, consulta:
+
+- **[API Documentation](API_DOCUMENTATION.md)** - Documentación completa de la API y estructura de respuestas
+- **[Client Examples](CLIENT_EXAMPLES.md)** - Ejemplos de código cliente en JavaScript para consumir la API
+
+### Estructura de Respuestas Estandarizada
+
+Todos los endpoints siguen una estructura JSON consistente:
+
+**Respuestas Exitosas:**
+```json
+{
+    "success": true,
+    "data": { /* datos específicos */ },
+    "message": "Mensaje descriptivo"
+}
+```
+
+**Respuestas de Error:**
+```json
+{
+    "success": false,
+    "message": "Mensaje de error",
+    "errors": { /* errores de validación */ }
+}
+```
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.

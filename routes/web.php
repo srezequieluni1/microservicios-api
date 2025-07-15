@@ -11,5 +11,3 @@ Route::get('/api-client', fn() => view('api-client'))->name('api-client');
 // Rutas para documentación
 Route::get('/docs/api-client', [DocumentationController::class, 'apiClientDocs'])->name('docs.api-client');
 Route::get('/docs/css-structure', [DocumentationController::class, 'cssStructureDocs'])->name('docs.css-structure');
-Route::get('/docs/history', [DocumentationController::class, 'historyDocs'])->name('docs.history');
-Route::get('/docs/test-markdown', [DocumentationController::class, 'testMarkdown'])->name('docs.test-markdown');

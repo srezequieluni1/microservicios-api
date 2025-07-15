@@ -1,7 +1,11 @@
 <?php
 use App\Http\Controllers\Api\AuthController;
 
-Route::get('/ping', fn() => response()->json(['status' => 'ok']));
+Route::get('/ping', fn() => response()->json([
+    'success' => true,
+    'data' => ['status' => 'ok'],
+    'message' => 'API is running correctly'
+]));
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
