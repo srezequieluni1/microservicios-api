@@ -552,7 +552,7 @@ body {
 }
 
 .json-content {
-    padding: var(--spacing-lg);
+    padding: 0;
     font-family: var(--font-family-mono);
     font-size: var(--font-size-base);
     line-height: 1.6;
@@ -560,6 +560,7 @@ body {
     max-height: var(--response-body-max-height);
     overflow-y: auto;
     background: var(--bg-dark);
+    border-radius: 8px;
 }
 
 /* Syntax highlighting para JSON */
@@ -568,6 +569,87 @@ body {
 .json-number { color: var(--json-number-color); }
 .json-boolean { color: var(--json-boolean-color); }
 .json-null { color: var(--json-null-color); }
+
+/* Estilos para bloque de código markdown */
+.markdown-code-block {
+    border-radius: 8px;
+    overflow: hidden;
+    background: #1e1e1e;
+    border: 1px solid var(--border-color);
+    margin: 0;
+}
+
+.code-block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: #2d2d30;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 12px;
+}
+
+.code-language {
+    color: #9cdcfe;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.copy-code-button {
+    background: none;
+    border: none;
+    color: #cccccc;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.copy-code-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.code-block-content {
+    margin: 0;
+    padding: 16px;
+    background: #1e1e1e;
+    overflow-x: auto;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #d4d4d4;
+}
+
+.code-block-content code {
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+}
+
+/* Scrollbar personalizado para el bloque de código */
+.code-block-content::-webkit-scrollbar {
+    height: 8px;
+}
+
+.code-block-content::-webkit-scrollbar-track {
+    background: #2d2d30;
+}
+
+.code-block-content::-webkit-scrollbar-thumb {
+    background: #424242;
+    border-radius: 4px;
+}
+
+.code-block-content::-webkit-scrollbar-thumb:hover {
+    background: #4f4f4f;
+}
 
 .empty-response {
     text-align: center;

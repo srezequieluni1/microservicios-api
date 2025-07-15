@@ -151,7 +151,7 @@
                     <div class="response-body">
                         <div class="response-body-header">
                             <span>Response Body</span>
-                            <button id="copyButton" class="copy-button">Copy JSON</button>
+                            <button id="copyButton" class="copy-button" style="display: none;">Copy JSON</button>
                         </div>
                         <div id="responseBody" class="json-content"></div>
                     </div>

@@ -396,15 +396,74 @@ async function displayResponseBody(response) {
         if (contentType.includes('application/json')) {
             const jsonData = await response.json();
             const formattedJson = JSON.stringify(jsonData, null, 2);
-            responseBody.innerHTML = syntaxHighlightJSON(formattedJson);
+            responseBody.innerHTML = renderMarkdownCodeBlock(formattedJson, 'json');
         } else {
             const textData = await response.text();
-            responseBody.textContent = textData || '(Respuesta vacía)';
+            responseBody.innerHTML = renderMarkdownCodeBlock(textData || '(Respuesta vacía)', 'text');
         }
     } catch (error) {
         console.error('Error procesando respuesta:', error);
-        responseBody.textContent = 'Error procesando la respuesta: ' + error.message;
+        responseBody.innerHTML = renderMarkdownCodeBlock('Error procesando la respuesta: ' + error.message, 'error');
     }
+}
+
+/**
+ * Renderiza contenido como un bloque de código markdown
+ */
+function renderMarkdownCodeBlock(content, language = 'json') {
+    const escapedContent = content
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    let highlightedContent = escapedContent;
+
+    // Aplicar syntax highlighting según el lenguaje
+    if (language === 'json') {
+        highlightedContent = syntaxHighlightJSON(escapedContent);
+    }
+
+    return `
+        <div class="markdown-code-block">
+            <div class="code-block-header">
+                <span class="code-language">${language}</span>
+                <button class="copy-code-button" onclick="copyCodeToClipboard(this)" title="Copiar código">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                    </svg>
+                </button>
+            </div>
+            <pre class="code-block-content"><code class="language-${language}">${highlightedContent}</code></pre>
+        </div>
+    `;
+}
+
+/**
+ * Copia el contenido del bloque de código al portapapeles
+ */
+function copyCodeToClipboard(button) {
+    const codeBlock = button.closest('.markdown-code-block');
+    const codeContent = codeBlock.querySelector('code');
+    const textContent = codeContent.textContent;
+
+    navigator.clipboard.writeText(textContent).then(() => {
+        // Mostrar feedback visual
+        const originalText = button.innerHTML;
+        button.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20,6 9,17 4,12"/>
+            </svg>
+        `;
+        button.style.color = '#10b981';
+
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.style.color = '';
+        }, 2000);
+    }).catch(err => {
+        console.error('Error al copiar:', err);
+    });
 }
 
 /**
@@ -511,7 +570,10 @@ async function copyResponseToClipboard() {
     if (!responseBody || !copyButton) return;
 
     try {
-        const text = responseBody.textContent || responseBody.innerText;
+        // Buscar el contenido del código dentro del bloque markdown
+        const codeElement = responseBody.querySelector('code');
+        const text = codeElement ? codeElement.textContent : (responseBody.textContent || responseBody.innerText);
+
         await navigator.clipboard.writeText(text);
 
         // Feedback visual
