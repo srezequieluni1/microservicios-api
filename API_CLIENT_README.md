@@ -32,7 +32,7 @@ Visita: `http://127.0.0.1:8000/api-client`
 #### Ejemplo básico GET
 ```
 Método: GET
-URL: http://tu-dominio/api/test/get-example
+URL: http://tu-dominio/api/ping
 Headers: {"Accept": "application/json"}
 Body: (vacío)
 ```
@@ -40,67 +40,53 @@ Body: (vacío)
 #### Ejemplo POST con datos
 ```
 Método: POST
-URL: http://tu-dominio/api/test/post-example
+URL: http://tu-dominio/api/register
 Headers: {
   "Content-Type": "application/json",
   "Accept": "application/json"
 }
 Body: {
-  "nombre": "Juan",
+  "name": "Juan Pérez",
   "email": "juan@ejemplo.com",
-  "edad": 30
+  "password": "password123",
+  "password_confirmation": "password123"
 }
 ```
 
-#### Ejemplo con headers personalizados
+#### Ejemplo con autenticación
 ```
 Método: GET
-URL: http://tu-dominio/api/test/headers
+URL: http://tu-dominio/api/user
 Headers: {
   "Accept": "application/json",
-  "X-API-Key": "mi-api-key-secreta"
+  "Authorization": "Bearer tu-token-de-acceso"
 }
 ```
 
-## 🧪 Endpoints de prueba incluidos
+## 🔗 Endpoints disponibles
 
-El sistema incluye varios endpoints de ejemplo para probar:
+El sistema incluye los siguientes endpoints de API:
 
-### GET `/api/test/get-example`
-- Respuesta simple con datos de ejemplo
-- Acepta parámetros query
+### GET `/api/ping`
+- Endpoint de verificación del estado del servicio
+- No requiere autenticación
 
-### POST `/api/test/post-example`
-- Acepta cualquier datos JSON
-- Devuelve los datos recibidos
+### POST `/api/register`
+- Registro de nuevos usuarios
+- Requiere: name, email, password, password_confirmation
 
-### PUT `/api/test/put-example/{id?}`
-- Simula actualización de recurso
-- ID opcional en la URL
+### POST `/api/login`
+- Autenticación de usuarios
+- Requiere: email, password
+- Devuelve: token de acceso
 
-### DELETE `/api/test/delete-example/{id?}`
-- Simula eliminación de recurso
-- ID opcional en la URL
+### POST `/api/logout`
+- Cerrar sesión de usuario autenticado
+- Requiere autenticación
 
-### PATCH `/api/test/patch-example/{id?}`
-- Simula actualización parcial
-- ID opcional en la URL
-
-### GET `/api/test/status?status=200`
-- Simula diferentes códigos de estado HTTP
-- Parámetro: `status` (100-599)
-
-### GET `/api/test/delay?delay=2`
-- Simula respuesta con demora
-- Parámetro: `delay` (0-10 segundos)
-
-### GET `/api/test/users`
-- Devuelve lista de usuarios de ejemplo
-- Datos ficticios para pruebas
-
-### GET `/api/test/headers`
-- Requiere header `X-API-Key`
-- Devuelve información de headers
+### GET `/api/user`
+- Información del usuario autenticado
+- Requiere autenticación
 
 ## 🎨 Características visuales
 
@@ -124,8 +110,6 @@ El sistema incluye varios endpoints de ejemplo para probar:
    ```php
    Route::get('/api-client', fn() => view('api-client'))->name('api-client');
    ```
-3. (Opcional) Copia `ApiTestController.php` para endpoints de prueba
-4. (Opcional) Agrega las rutas de prueba en `routes/api.php`
 
 ### Personalización
 
