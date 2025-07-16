@@ -3,7 +3,7 @@
 use App\Models\User;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Notifications\CustomVerifyEmailNotification;
 
 describe('Email Verification', function () {
 
@@ -30,7 +30,7 @@ describe('Email Verification', function () {
             ->and($user->email_verified_at)->toBeNull();
 
         // Verificar que se envió la notificación de verificación
-        Notification::assertSentTo($user, VerifyEmail::class);
+        Notification::assertSentTo($user, CustomVerifyEmailNotification::class);
     });
 
     it('verifica el email con un enlace válido', function () {
@@ -156,7 +156,7 @@ describe('Email Verification', function () {
         $response->assertStatus(200)
             ->assertJson(['message' => 'Verification email sent']);
 
-        Notification::assertSentTo($user, VerifyEmail::class);
+        Notification::assertSentTo($user, CustomVerifyEmailNotification::class);
     });
 
     it('no reenvía email si ya está verificado', function () {
@@ -175,7 +175,7 @@ describe('Email Verification', function () {
         $response->assertStatus(200)
             ->assertJson(['message' => 'Email already verified']);
 
-        Notification::assertNotSentTo($user, VerifyEmail::class);
+        Notification::assertNotSentTo($user, CustomVerifyEmailNotification::class);
     });
 
     it('requiere autenticación para reenviar email', function () {
