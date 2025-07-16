@@ -114,6 +114,58 @@
                         <div class="error-message" id="bodyError">Formato JSON inválido en el body</div>
                     </div>
 
+                    <!-- Sección de archivos adjuntos -->
+                    <div class="form-group">
+                        <label class="form-label">Archivos Adjuntos</label>
+                        <div class="file-upload-section">
+                            <div class="file-input-wrapper">
+                                <input
+                                    type="file"
+                                    id="fileInput"
+                                    class="file-input"
+                                    multiple
+                                    accept="*/*"
+                                    style="display: none;"
+                                >
+                                <button type="button" id="selectFilesButton" class="select-files-button">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="17,8 12,3 7,8"/>
+                                        <line x1="12" y1="3" x2="12" y2="15"/>
+                                    </svg>
+                                    Seleccionar Archivos
+                                </button>
+                                <span class="file-hint">Máximo 10 archivos, 10MB por archivo</span>
+                            </div>
+
+                            <!-- Lista de archivos seleccionados -->
+                            <div id="selectedFilesList" class="selected-files-list" style="display: none;">
+                                <div class="files-header">
+                                    <span class="files-title">Archivos Seleccionados</span>
+                                    <button type="button" id="clearFilesButton" class="clear-files-button">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14ZM10 11v6M14 11v6"/>
+                                        </svg>
+                                        Limpiar Todo
+                                    </button>
+                                </div>
+                                <div id="filesList" class="files-list"></div>
+                            </div>
+
+                            <!-- Campo opcional para descripción -->
+                            <div class="file-description-wrapper" id="fileDescriptionWrapper" style="display: none;">
+                                <label class="form-label" for="fileDescription">Descripción (opcional)</label>
+                                <input
+                                    type="text"
+                                    id="fileDescription"
+                                    class="form-control"
+                                    placeholder="Descripción de los archivos adjuntos"
+                                    maxlength="500"
+                                >
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Botón de ejecución -->
                     <button type="submit" id="executeButton" class="execute-button">
                         <span class="button-text">Ejecutar Request</span>
@@ -163,5 +215,6 @@
     <!-- JavaScript -->
     <script src="{{ asset('js/api-client.js') }}"></script>
     <script src="{{ asset('js/api-client-history.js') }}"></script>
+    <script src="{{ asset('js/api-client-files.js') }}"></script>
 </body>
 </html>

@@ -295,14 +295,50 @@ async function prepareRequest() {
         credentials: 'same-origin'
     };
 
+    // Verificar si hay archivos seleccionados
+    const hasFiles = typeof hasSelectedFiles === 'function' && hasSelectedFiles();
+
     // Agregar body para métodos que lo permiten
     if (['POST', 'PUT', 'PATCH'].includes(method)) {
-        const body = requestBodyInput?.value.trim() || '';
-        if (body) {
-            options.body = body;
-            // Asegurar Content-Type si no está definido
-            if (!headers['Content-Type'] && !headers['content-type']) {
-                headers['Content-Type'] = 'application/json';
+        if (hasFiles) {
+            // Si hay archivos, usar FormData
+            console.log('📁 Preparando petición con archivos adjuntos');
+
+            const body = requestBodyInput?.value.trim() || '';
+            let baseData = {};
+
+            // Si hay JSON en el body, parsearlo e incluirlo en FormData
+            if (body) {
+                try {
+                    baseData = JSON.parse(body);
+                } catch (error) {
+                    console.warn('Error parseando JSON del body, se enviará como string:', error);
+                    baseData = { json_data: body };
+                }
+            }
+
+            // Preparar FormData con archivos
+            const formData = typeof prepareFormDataWithFiles === 'function'
+                ? prepareFormDataWithFiles(baseData)
+                : null;
+
+            if (formData) {
+                options.body = formData;
+                // NO establecer Content-Type manualmente - FormData lo hace automáticamente
+                delete headers['Content-Type'];
+                delete headers['content-type'];
+            } else {
+                throw new Error('Error preparando archivos para envío');
+            }
+        } else {
+            // Sin archivos, usar método tradicional
+            const body = requestBodyInput?.value.trim() || '';
+            if (body) {
+                options.body = body;
+                // Asegurar Content-Type si no está definido
+                if (!headers['Content-Type'] && !headers['content-type']) {
+                    headers['Content-Type'] = 'application/json';
+                }
             }
         }
     }

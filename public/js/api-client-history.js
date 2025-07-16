@@ -416,6 +416,11 @@ class ApiHistoryManager {
         document.getElementById('customHeaders').value = '';
         document.getElementById('requestBody').value = '';
 
+        // Limpiar archivos adjuntos si existe la función
+        if (typeof clearAllFiles === 'function') {
+            clearAllFiles();
+        }
+
         // Limpiar errores de validación
         this.clearValidationErrors();
 
