@@ -397,6 +397,14 @@ async function displayResponseBody(response) {
             const jsonData = await response.json();
             const formattedJson = JSON.stringify(jsonData, null, 2);
             responseBody.innerHTML = renderMarkdownCodeBlock(formattedJson, 'json');
+
+            // Si la respuesta contiene archivos adjuntos, agregar previews
+            if (jsonData.success && jsonData.data) {
+                const attachmentPreview = renderAttachmentPreviews(jsonData.data);
+                if (attachmentPreview) {
+                    responseBody.innerHTML += attachmentPreview;
+                }
+            }
         } else {
             const textData = await response.text();
             responseBody.innerHTML = renderMarkdownCodeBlock(textData || '(Respuesta vacía)', 'text');
@@ -697,3 +705,214 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 100);
 });
+
+// Funciones para manejo de archivos adjuntos
+
+/**
+ * Renderiza previews de archivos adjuntos si existen en los datos
+ * @param {Object} data - Objeto de datos que puede contener attachments
+ * @returns {string} - HTML con los previews o cadena vacía
+ */
+function renderAttachmentPreviews(data) {
+    let attachments = [];
+
+    // Buscar attachments en diferentes ubicaciones
+    if (data.attachments) {
+        attachments = data.attachments;
+    } else if (data.user && data.user.attachments) {
+        attachments = data.user.attachments;
+    } else if (data.items && Array.isArray(data.items)) {
+        // Para listas, buscar attachments en cada item
+        let hasAttachments = false;
+        let itemsHtml = '';
+
+        data.items.forEach((item, index) => {
+            if (item.attachments && item.attachments.length > 0) {
+                hasAttachments = true;
+                itemsHtml += `
+                    <div class="attachments-section">
+                        <h4>Archivos del elemento ${index + 1} (${item.name || item.email || item.id}):</h4>
+                        ${renderAttachmentList(item.attachments)}
+                    </div>
+                `;
+            }
+        });
+
+        if (hasAttachments) {
+            return `<div class="list-attachments-preview">${itemsHtml}</div>`;
+        }
+        return '';
+    }
+
+    if (attachments.length === 0) {
+        return '';
+    }
+
+    return `
+        <div class="attachments-preview">
+            <h4>Archivos adjuntos:</h4>
+            ${renderAttachmentList(attachments)}
+        </div>
+    `;
+}
+
+/**
+ * Renderiza una lista de archivos adjuntos
+ * @param {Array} attachments - Array de attachments
+ * @returns {string} - HTML de la lista
+ */
+function renderAttachmentList(attachments) {
+    return attachments.map(attachment => `
+        <div class="attachment-item" data-mime="${attachment.mime_type}">
+            <div class="attachment-info">
+                <strong>${attachment.name}</strong>
+                <span class="mime-type">${attachment.mime_type}</span>
+                <span class="file-size">${formatFileSize(attachment.size)}</span>
+            </div>
+            ${renderAttachmentContent(attachment)}
+        </div>
+    `).join('');
+}
+
+/**
+ * Renderiza el contenido específico de un attachment según su tipo
+ * @param {Object} attachment - Objeto attachment
+ * @returns {string} - HTML del contenido específico
+ */
+function renderAttachmentContent(attachment) {
+    const { mime_type, metadata, url, id } = attachment;
+    const baseUrl = window.location.origin;
+    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+
+    if (mime_type.startsWith('image/')) {
+        const imageUrl = metadata.thumbnail_url ?
+            (metadata.thumbnail_url.startsWith('http') ? metadata.thumbnail_url : `${baseUrl}${metadata.thumbnail_url}`) :
+            fullUrl;
+
+        return `
+            <div class="image-preview">
+                <img src="${imageUrl}"
+                     alt="${metadata.alt_text || attachment.name}"
+                     style="max-width: 200px; max-height: 200px; object-fit: cover; border-radius: 4px;">
+                <div class="image-actions">
+                    <button onclick="viewFullImage('${fullUrl}')" class="action-button">Ver completa</button>
+                    <button onclick="downloadAttachment('${id}', '${attachment.name}')" class="action-button">Descargar</button>
+                </div>
+            </div>
+        `;
+    } else if (mime_type === 'application/pdf') {
+        const previewButton = metadata.preview_url ?
+            `<button onclick="viewDocument('${metadata.preview_url}')" class="action-button">Vista previa</button>` : '';
+
+        return `
+            <div class="document-preview">
+                <div class="document-icon" style="font-size: 48px; text-align: center;">📄</div>
+                <div class="document-actions">
+                    ${previewButton}
+                    <button onclick="downloadAttachment('${id}', '${attachment.name}')" class="action-button">Descargar</button>
+                </div>
+            </div>
+        `;
+    } else {
+        return `
+            <div class="generic-file">
+                <div class="file-icon" style="font-size: 48px; text-align: center;">📎</div>
+                <button onclick="downloadAttachment('${id}', '${attachment.name}')" class="action-button">Descargar</button>
+            </div>
+        `;
+    }
+}
+
+/**
+ * Formatea el tamaño de un archivo en formato legible
+ * @param {number} bytes - Tamaño en bytes
+ * @returns {string} - Tamaño formateado
+ */
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+/**
+ * Muestra una imagen en tamaño completo en un modal
+ * @param {string} imageUrl - URL de la imagen
+ */
+function viewFullImage(imageUrl) {
+    const modal = document.createElement('div');
+    modal.className = 'image-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        cursor: pointer;
+    `;
+
+    modal.innerHTML = `
+        <div class="modal-content" style="position: relative; max-width: 90vw; max-height: 90vh;">
+            <span class="close" style="position: absolute; top: -40px; right: 0; color: white; font-size: 30px; cursor: pointer;">&times;</span>
+            <img src="${imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+        </div>
+    `;
+
+    // Cerrar modal al hacer clic
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal || e.target.classList.contains('close')) {
+            modal.remove();
+        }
+    });
+
+    document.body.appendChild(modal);
+}
+
+/**
+ * Descarga un archivo por su ID
+ * @param {string} fileId - ID del archivo
+ * @param {string} filename - Nombre sugerido para el archivo
+ */
+async function downloadAttachment(fileId, filename) {
+    try {
+        const baseUrl = window.location.origin;
+        const response = await fetch(`${baseUrl}/api/files/${fileId}?download=true`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        console.log(`✅ Archivo ${filename} descargado exitosamente`);
+    } catch (error) {
+        console.error('❌ Error descargando archivo:', error.message);
+        alert('Error al descargar el archivo. Verifica la consola para más detalles.');
+    }
+}
+
+/**
+ * Muestra un documento en una nueva ventana
+ * @param {string} documentUrl - URL del documento
+ */
+function viewDocument(documentUrl) {
+    const baseUrl = window.location.origin;
+    const fullUrl = documentUrl.startsWith('http') ? documentUrl : `${baseUrl}${documentUrl}`;
+    window.open(fullUrl, '_blank');
+}
