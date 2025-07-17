@@ -1,6 +1,6 @@
-# 📧 Guía Completa para Personalizar Plantillas de Email
+# Guía Completa para Personalizar Plantillas de Email
 
-## 🎨 Métodos de Personalización
+## Métodos de Personalización
 
 ### **Método 1: Personalización Básica (Recomendado para empezar)**
 
@@ -12,11 +12,11 @@ public function toMail(object $notifiable): MailMessage
     $resetUrl = url(config('app.frontend_url', config('app.url')) . '/reset-password?token=' . $this->token . '&email=' . urlencode($notifiable->email));
 
     return (new MailMessage)
-        ->subject('🔐 Restablecer Contraseña - ' . config('app.name'))
+        ->subject('Restablecer Contraseña - ' . config('app.name'))
         ->greeting('¡Hola ' . $notifiable->name . '!')
         ->line('Recibimos una solicitud para restablecer la contraseña de tu cuenta.')
         ->line('Haz clic en el botón de abajo para crear una nueva contraseña:')
-        ->action('🔄 Restablecer Contraseña', $resetUrl)
+        ->action('Restablecer Contraseña', $resetUrl)
         ->line('**Este enlace expirará en 60 minutos por seguridad.**')
         ->line('Si no solicitaste este restablecimiento, puedes ignorar este email de forma segura.')
         ->salutation('Saludos,<br>El equipo de ' . config('app.name'))
@@ -34,7 +34,7 @@ public function toMail(object $notifiable): MailMessage
     $resetUrl = url(config('app.frontend_url', config('app.url')) . '/reset-password?token=' . $this->token . '&email=' . urlencode($notifiable->email));
 
     return (new MailMessage)
-        ->subject('🔐 Restablecer Contraseña - ' . config('app.name'))
+        ->subject('Restablecer Contraseña - ' . config('app.name'))
         ->view('emails.reset-password', [
             'user' => $notifiable,
             'resetUrl' => $resetUrl,
@@ -52,7 +52,7 @@ Cambiar el tema en la notificación:
 ->theme('default') // Usa default.css
 ```
 
-## 🎯 Opciones de Personalización
+## Opciones de Personalización
 
 ### **Elementos del MailMessage que puedes personalizar:**
 
@@ -79,7 +79,7 @@ return (new MailMessage)
 - `# Título` → Encabezado
 - `> Cita` → Texto citado
 
-## 🎨 Personalizar Estilos CSS
+## Personalizar Estilos CSS
 
 ### **Estructura de archivos CSS de email:**
 
@@ -110,7 +110,7 @@ resources/views/vendor/mail/html/themes/
 --border-radius: 8px;
 ```
 
-## 🖼️ Agregar Logo y Imágenes
+## Agregar Logo y Imágenes
 
 ### **En vista Blade personalizada:**
 
@@ -127,7 +127,7 @@ resources/views/vendor/mail/html/themes/
 ->line('<img src="' . asset('images/logo.png') . '" alt="Logo" style="max-width: 200px;">')
 ```
 
-## 🌍 Configuración de Idioma
+## Configuración de Idioma
 
 ### **Crear archivos de traducción:**
 
@@ -148,7 +148,7 @@ return [
 ];
 ```
 
-## 📱 Responsive Design
+## Responsive Design
 
 ### **En tu CSS personalizado:**
 
@@ -170,7 +170,7 @@ return [
 }
 ```
 
-## 🧪 Probar los Emails
+## Probar los Emails
 
 ### **1. Método de Log (Desarrollo):**
 
@@ -208,7 +208,7 @@ MAIL_PASSWORD=tu-app-password
 MAIL_ENCRYPTION=tls
 ```
 
-## 🎨 Ejemplos de Personalización
+## Ejemplos de Personalización
 
 ### **Tema Corporativo:**
 
@@ -229,18 +229,18 @@ return (new MailMessage)
 
 ```php
 return (new MailMessage)
-    ->subject('🔑 ¡Oye! Resetea tu contraseña')
-    ->greeting('¡Hola ' . $notifiable->name . '! 👋')
-    ->line('¡Ups! ¿Olvidaste tu contraseña? ¡No te preocupes, nos pasa a todos! 😅')
+    ->subject('¡Oye! Resetea tu contraseña')
+    ->greeting('¡Hola ' . $notifiable->name . '!')
+    ->line('¡Ups! ¿Olvidaste tu contraseña? ¡No te preocupes, nos pasa a todos!')
     ->line('Haz clic aquí para crear una nueva:')
-    ->action('✨ Crear Nueva Contraseña', $resetUrl)
-    ->line('⏰ Tienes 60 minutos antes de que este enlace expire.')
-    ->line('Si no fuiste tú, simplemente ignora este email. 🤷‍♀️')
-    ->salutation('¡Que tengas un día genial! 🌟<br>El equipo de ' . config('app.name'))
+    ->action('Crear Nueva Contraseña', $resetUrl)
+    ->line('Tienes 60 minutos antes de que este enlace expire.')
+    ->line('Si no fuiste tú, simplemente ignora este email.')
+    ->salutation('¡Que tengas un día genial!<br>El equipo de ' . config('app.name'))
     ->theme('fun');
 ```
 
-## 📋 Checklist de Personalización
+## Checklist de Personalización
 
 - [ ] Definir el tono de comunicación (formal/casual)
 - [ ] Personalizar colores de marca
@@ -253,7 +253,7 @@ return (new MailMessage)
 - [ ] Configurar SMTP en producción
 - [ ] Documentar cambios para el equipo
 
-## 🚀 Comandos Útiles
+## Comandos Útiles
 
 ```bash
 # Publicar plantillas de email
@@ -269,5 +269,3 @@ php artisan tinker
 # Ver logs de email
 tail -f storage/logs/laravel.log
 ```
-
-¡Ahora tienes todo lo que necesitas para crear emails hermosos y personalizados! 🎨✨

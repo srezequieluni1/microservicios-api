@@ -1,6 +1,6 @@
 # Documentación Completa de la API - Microservicios Laravel
 
-## 📋 Índice
+## Índice
 - [Estructura de Respuestas](#estructura-de-respuestas)
 - [Endpoints de Autenticación](#endpoints-de-autenticación)
 - [Endpoints de Usuario](#endpoints-de-usuario)
