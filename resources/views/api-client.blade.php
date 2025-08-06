@@ -7,9 +7,9 @@
     <title>API Client - Laravel 12</title>
 
     <!-- Estilos CSS -->
-    <link rel="stylesheet" href="{{ asset('css/api-client-variables.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/api-client.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/api-client-responsive.css') }}">
+    <link rel="stylesheet" href="/css/api-client-variables.css">
+    <link rel="stylesheet" href="/css/api-client.css">
+    <link rel="stylesheet" href="/css/api-client-responsive.css">
 </head>
 <body>
     <div class="container">
@@ -214,8 +214,8 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="{{ asset('js/api-client.js') }}"></script>
-    <script src="{{ asset('js/api-client-history.js') }}"></script>
-    <script src="{{ asset('js/api-client-files.js') }}"></script>
+    <script src="/js/api-client.js"></script>
+    <script src="/js/api-client-history.js"></script>
+    <script src="/js/api-client-files.js"></script>
 </body>
 </html>
