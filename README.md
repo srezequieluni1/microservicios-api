@@ -141,7 +141,19 @@ copy .env.example .env
 php artisan key:generate
 ```
 
-### Paso 4: Configurar Base de Datos
+## Paso 4: Configuración del Usuario Administrador
+
+Este paso es fundamental para que al poblar con `seed` la BBDD no de ningun error.
+
+En el archivo `.env` hay que añadir lo siguiente:
+
+```env
+ADMIN_NAME="Administrador"
+ADMIN_EMAIL="admin@tuproyecto.com"
+ADMIN_PASSWORD="tu_password_seguro"
+```
+
+### Paso 5: Configurar Base de Datos
 ```powershell
 # Crear la base de datos SQLite
 php artisan migrate
@@ -150,7 +162,7 @@ php artisan migrate
 php artisan db:seed
 ```
 
-### Paso 5: Ejecutar el Servidor
+### Paso 6: Ejecutar el Servidor
 ```powershell
 php artisan serve
 ```
@@ -206,25 +218,6 @@ MAIL_FROM_NAME="Tu Proyecto"
 ```
 
 > **Nota**: Reemplaza `tu_usuario_mailtrap` y `tu_password_mailtrap` con las credenciales reales de Mailtrap.
-
-## Configuración del Usuario Administrador
-
-Para tener acceso completo a la API, necesitas configurar un usuario administrador:
-
-### Opción 1: Configurar en .env
-Agrega estas variables a tu archivo `.env`:
-
-```env
-ADMIN_NAME="Administrador"
-ADMIN_EMAIL="admin@tuproyecto.com"
-ADMIN_PASSWORD="tu_password_seguro"
-```
-
-### Opción 2: Crear Manualmente
-```powershell
-# Ejecuta el seeder para crear el usuario admin
-php artisan db:seed --class=AdminUserSeeder
-```
 
 ## Probando la API
 
