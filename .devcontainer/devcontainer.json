@@ -1,0 +1,43 @@
+{
+    "name": "Microservicios API",
+    "dockerFile": "Dockerfile",
+    "forwardPorts": [
+        8000
+    ],
+    "postCreateCommand": "composer install && cp .env.example .env && php artisan key:generate && php artisan migrate --seed --force",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "bash"
+            },
+            "extensions": [
+                "codingyu.laravel-goto-view",
+                "cweijan.dbclient-jdbc",
+                "cweijan.vscode-mysql-client2",
+                "devsense.phptools-vscode",
+                "devsense.profiler-php-vscode",
+                "foxundermoon.shell-format",
+                "george-alisson.html-preview-vscode",
+                "github.copilot",
+                "github.copilot-chat",
+                "github.vscode-pull-request-github",
+                "gruntfuggly.todo-tree",
+                "ihunte.laravel-blade-wrapper",
+                "marcuselg.markdowntoolbar",
+                "mehedidracula.php-namespace-resolver",
+                "mikestead.dotenv",
+                "naoray.laravel-goto-components",
+                "onecentlin.laravel-extension-pack",
+                "pgl.laravel-jump-controller",
+                "pkief.material-icon-theme",
+                "shd101wyy.markdown-preview-enhanced",
+                "shufo.vscode-blade-formatter",
+                "simonsiefke.svg-preview",
+                "vscode-icons-team.vscode-icons",
+                "xdebug.php-debug",
+                "yy0931.vscode-sqlite3-editor",
+                "zaaack.markdown-editor"
+            ]
+        }
+    }
+}
