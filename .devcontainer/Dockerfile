@@ -1,8 +1,11 @@
 FROM ubuntu:22.04
 
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/Argentina/San_Juan
+
 # Instala PHP 8.3 y extensiones comunes para Laravel, incluyendo SQLite
 RUN apt-get update && \
-    apt-get install -y software-properties-common && \
+    apt-get install -y software-properties-common tzdata && \
     add-apt-repository ppa:ondrej/php -y && \
     apt-get update && \
     apt-get install -y \
