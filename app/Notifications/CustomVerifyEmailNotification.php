@@ -52,7 +52,8 @@ class CustomVerifyEmailNotification extends Notification
      */
     protected function verificationUrl($notifiable): string
     {
-        return URL::temporarySignedRoute(
+        $appUrl = config('app.frontend_url', config('app.url'));
+        $temporaryUrl = URL::temporarySignedRoute(
             'verification.verify',
             Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
             [
@@ -60,6 +61,8 @@ class CustomVerifyEmailNotification extends Notification
                 'hash' => sha1($notifiable->getEmailForVerification()),
             ]
         );
+        // Reemplaza la base de la URL por APP_URL (homogéneo con ResetPasswordNotification)
+        return preg_replace('/^https?:\/\/[^\/]+/', $appUrl, $temporaryUrl);
     }
 
     /**

@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DocumentationController;
 
-Route::get('/', fn() => view('welcome'));
+Route::get('/', fn() => view('api-client'));
 
 // Ruta para previsualizar emails (solo para desarrollo)
 if (app()->environment('local')) {
@@ -31,7 +31,7 @@ if (app()->environment('local')) {
 }
 
 // Ruta para el cliente API
-Route::get('/api-client', fn() => view('api-client'))->name('api-client');
+// Route::get('/api-client', fn() => view('api-client'))->name('api-client');
 
 // Rutas para documentación
 Route::prefix('docs')->group(function () {

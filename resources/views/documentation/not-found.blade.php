@@ -6,7 +6,7 @@
     <title>{{ $title }} - No encontrado</title>
 
     <!-- CSS Unificado para tema oscuro de documentación -->
-    <link rel="stylesheet" href="{{ asset('css/documentation-dark-theme.css') }}">
+    <link rel="stylesheet" href="css/documentation-dark-theme.css">
 </head>
 <body>
     <div class="container">
