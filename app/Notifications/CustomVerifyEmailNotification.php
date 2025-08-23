@@ -54,7 +54,7 @@ class CustomVerifyEmailNotification extends Notification
     {
         $appUrl = config('app.url');
         // Obtiene el tiempo de expiración en minutos (por defecto 1440 = 24h)
-        $expireMinutes = env('AUTH_VERIFICATION_EXPIRE', 1440);
+        $expireMinutes = (int) env('AUTH_VERIFICATION_EXPIRE', 1440);
 
         // Crea la URL temporal firmada para la verificación
         $temporaryUrl = URL::temporarySignedRoute(
