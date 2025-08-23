@@ -6,9 +6,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Carbon;
 
 class CustomVerifyEmailNotification extends Notification
 {
@@ -52,16 +52,20 @@ class CustomVerifyEmailNotification extends Notification
      */
     protected function verificationUrl($notifiable): string
     {
-    $appUrl = config('app.url');
+        $appUrl = config('app.url');
+        // Obtiene el tiempo de expiración en minutos (por defecto 1440 = 24h)
+        $expireMinutes = env('AUTH_VERIFICATION_EXPIRE', 1440);
+
+        // Crea la URL temporal firmada para la verificación
         $temporaryUrl = URL::temporarySignedRoute(
             'verification.verify',
-            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+            Carbon::now()->addMinutes($expireMinutes),
             [
                 'id' => $notifiable->getKey(),
                 'hash' => sha1($notifiable->getEmailForVerification()),
             ]
         );
-        // Reemplaza la base de la URL por APP_URL (homogéneo con ResetPasswordNotification)
+        // Reemplaza la base de la URL por APP_URL
         return preg_replace('/^https?:\/\/[^\/]+/', $appUrl, $temporaryUrl);
     }
 
