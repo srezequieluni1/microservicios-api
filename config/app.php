@@ -54,7 +54,7 @@ return [
 
     'url' => env('APP_URL', 'http://127.0.0.1'),
 
-    'frontend_url' => env('APP_FRONTEND_URL', env('APP_URL', 'http://127.0.0.1')),
+    // 'frontend_url' removed
 
     /*
     |--------------------------------------------------------------------------

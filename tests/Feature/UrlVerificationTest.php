@@ -27,7 +27,7 @@ test('verifica la URL generada en el email de reset de contraseña', function ()
     // Mostrar la URL generada
     if (isset($viewData['resetUrl'])) {
         echo "\n🔍 URL generada en el email: " . $viewData['resetUrl'] . "\n";
-        expect($viewData['resetUrl'])->toContain(config('app.frontend_url', config('app.url')));
+    expect($viewData['resetUrl'])->toContain(config('app.url'));
     } else {
         echo "\n⚠️  No se encontró resetUrl en viewData\n";
         echo "ViewData disponible: " . json_encode(array_keys($viewData)) . "\n";
@@ -35,6 +35,6 @@ test('verifica la URL generada en el email de reset de contraseña', function ()
 
     // Verificar configuración actual
     echo "🔧 APP_URL: " . config('app.url') . "\n";
-    echo "🔧 APP_FRONTEND_URL: " . config('app.frontend_url') . "\n";
+    // APP_FRONTEND_URL reference removed
     echo "🔧 MAIL_MAILER: " . config('mail.default') . "\n";
 });

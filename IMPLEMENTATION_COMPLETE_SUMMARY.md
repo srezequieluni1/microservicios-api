@@ -235,7 +235,7 @@ routes/web.php                                        # ✏️ Ruta preview agre
 
 #### Configuración
 - **Expiración**: 24 horas (configurable en `config/auth.php`)
-- **Variables de entorno**: `APP_NAME`, `APP_URL`, `APP_FRONTEND_URL`
+- **Variables de entorno**: `APP_NAME`, `APP_URL`
 - **Compatibilidad**: Mantiene toda la funcionalidad existente de Laravel
 
 ---
@@ -346,7 +346,7 @@ http://localhost:8000/api-client
 ### Variables de Entorno Requeridas
 ```bash
 # Reset de contraseña
-APP_FRONTEND_URL=http://localhost:8000
+
 MAIL_MAILER=log  # o smtp para producción
 
 # Archivos

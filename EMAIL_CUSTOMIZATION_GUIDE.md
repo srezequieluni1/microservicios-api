@@ -9,7 +9,7 @@ Modifica directamente el método `toMail()` en `ResetPasswordNotification.php`:
 ```php
 public function toMail(object $notifiable): MailMessage
 {
-    $resetUrl = url(config('app.frontend_url', config('app.url')) . '/reset-password?token=' . $this->token . '&email=' . urlencode($notifiable->email));
+    $resetUrl = url(config('app.url') . '/reset-password?token=' . $this->token . '&email=' . urlencode($notifiable->email));
 
     return (new MailMessage)
         ->subject('Restablecer Contraseña - ' . config('app.name'))
@@ -31,7 +31,7 @@ Para usar la plantilla `emails.reset-password.blade.php`:
 ```php
 public function toMail(object $notifiable): MailMessage
 {
-    $resetUrl = url(config('app.frontend_url', config('app.url')) . '/reset-password?token=' . $this->token . '&email=' . urlencode($notifiable->email));
+    $resetUrl = url(config('app.url') . '/reset-password?token=' . $this->token . '&email=' . urlencode($notifiable->email));
 
     return (new MailMessage)
         ->subject('Restablecer Contraseña - ' . config('app.name'))
