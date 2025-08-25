@@ -81,13 +81,13 @@
                             </select>
                             <div>
                                 <input
-                                    type="url"
+                                    type="text"
                                     id="apiUrl"
                                     class="form-control"
                                     placeholder="https://api.ejemplo.com/endpoint"
                                     required
                                 >
-                                <div class="error-message" id="urlError">Por favor ingresa una URL válida</div>
+                                <div class="error-message" id="urlError"></div>
                             </div>
                         </div>
                     </div>

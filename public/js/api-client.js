@@ -148,7 +148,15 @@ async function handleFormSubmit(event) {
             throw new Error('Elemento URL no encontrado');
         }
 
-        const url = apiUrlInput.value.trim();
+        let url = apiUrlInput.value.trim();
+        
+        // Si la URL no tiene protocolo, agregar la URL base actual
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            const baseUrl = `${window.location.protocol}//${window.location.host}/`;
+            url = baseUrl + url.replace(/^\/+/, ''); // Eliminar barras iniciales duplicadas
+            console.log('🌐 URL base agregada automáticamente:', url);
+        }
+        
         console.log('🌐 Enviando petición a:', url);
 
         const response = await fetch(url, requestOptions);
@@ -202,7 +210,7 @@ function validateForm() {
  * Valida la URL ingresada
  */
 function validateUrl() {
-    const apiUrlInput = window.apiClientElements?.apiUrlInput;
+    const apiUrlInput = document.getElementById('apiUrl');
     if (!apiUrlInput) return false;
 
     const url = apiUrlInput.value.trim();
@@ -213,13 +221,27 @@ function validateUrl() {
         return false;
     }
 
-    try {
-        new URL(url);
-        hideFieldError(apiUrlInput, urlError);
-        return true;
-    } catch {
-        showFieldError(apiUrlInput, urlError, 'Por favor ingresa una URL válida');
-        return false;
+    // Si la URL tiene protocolo, validar como URL completa
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+        try {
+            new URL(url);
+            hideFieldError(apiUrlInput, urlError);
+            return true;
+        } catch (error) {
+            showFieldError(apiUrlInput, urlError, 'Por favor ingresa una URL válida');
+            return false;
+        }
+    } else {
+        // Para URLs relativas, validar que tengan un formato básico válido
+        // Permitir rutas como: api/ping, /api/users, users/123, etc.
+        const relativeUrlPattern = /^[a-zA-Z0-9\/_\-\.]+$/;
+        if (relativeUrlPattern.test(url)) {
+            hideFieldError(apiUrlInput, urlError);
+            return true;
+        } else {
+            showFieldError(apiUrlInput, urlError, 'Por favor ingresa una URL válida');
+            return false;
+        }
     }
 }
 
