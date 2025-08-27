@@ -1,12 +1,12 @@
 # Laravel: Almacenamiento de Datos - Taller de 3.5 Horas
 
-## 📋 Información del Taller
+## Información del Taller
 
 **Duración:** 3.5 horas  
 **Nivel:** Principiante  
 **Requisitos previos:** Conocimientos básicos de PHP y SQL  
 
-## 🎯 Objetivos de Aprendizaje
+## Objetivos de Aprendizaje
 
 Al finalizar este taller, los estudiantes serán capaces de:
 - Comprender el sistema de migraciones de Laravel
@@ -18,30 +18,30 @@ Al finalizar este taller, los estudiantes serán capaces de:
 
 ---
 
-## 📚 Agenda del Taller
+## Agenda del Taller
 
-### Bloque 1: Fundamentos (1 hora)
+### Bloque 1: Fundamentos
 - Introducción al ORM Eloquent
 - Configuración inicial y creación de rama de trabajo
 - Migraciones básicas
 
-### Bloque 2: Modelos y Relaciones (1.5 horas)
+### Bloque 2: Modelos y Relaciones
 - Creación de modelos
 - Relaciones entre modelos
 - Seeders y Factory
 
-### Descanso (15 minutos)
+### Descanso
 
-### Bloque 3: Práctica Avanzada (1 hora)
+### Bloque 3: Práctica Avanzada
 - Mapeo SQL a Eloquent
 - Modificación de tablas
 - Casos prácticos complejos
 
 ---
 
-## 🚀 Bloque 1: Fundamentos (1 hora)
+## Bloque 1: Fundamentos
 
-### 1.1 Preparación del Ambiente de Trabajo (10 minutos)
+### 1.1 Preparación del Ambiente de Trabajo
 
 **Crear una nueva rama de trabajo:**
 
@@ -53,7 +53,7 @@ git checkout -b taller-storage-datos
 git branch
 ```
 
-### 1.2 Introducción a las Migraciones (20 minutos)
+### 1.2 Introducción a las Migraciones
 
 Las **migraciones** son como el control de versiones para tu base de datos. Te permiten definir y compartir el esquema de la base de datos de la aplicación.
 
@@ -70,6 +70,22 @@ Vamos a crear una tabla para gestionar **productos** en una tienda:
 ```bash
 # Crear migración para tabla productos
 php artisan make:migration create_products_table
+```
+
+**Diagrama del modelo de datos inicial:**
+
+```mermaid
+erDiagram
+    PRODUCTS {
+        bigint id PK
+        string name
+        text description
+        decimal price
+        integer stock
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
 ```
 
 **Estructura de una migración:**
@@ -124,13 +140,40 @@ $table->string('phone')->nullable();         // Acepta NULL
 $table->integer('priority')->default(1);     // Valor por defecto
 ```
 
-### 1.3 Creando nuestra primera tabla - Categorías (15 minutos)
+### 1.3 Creando nuestra primera tabla - Categorías
 
 Primero creemos una tabla simple para **categorías**:
 
 ```bash
 # Crear migración para categorías
 php artisan make:migration create_categories_table
+```
+
+**Diagrama del modelo de datos actualizado:**
+
+```mermaid
+erDiagram
+    CATEGORIES {
+        bigint id PK
+        string name
+        string slug UK
+        text description
+        string color
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    PRODUCTS {
+        bigint id PK
+        string name
+        text description
+        decimal price
+        integer stock
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
 ```
 
 **Contenido de la migración:**
@@ -174,7 +217,7 @@ php artisan migrate
 php artisan migrate:status
 ```
 
-### 1.4 Ejercicio Práctico 1 (15 minutos)
+### 1.4 Ejercicio Práctico 1
 
 **Tarea:** Crear una migración para la tabla `customers` (clientes) con los siguientes campos:
 
@@ -186,6 +229,45 @@ php artisan migrate:status
 - birth_date (date, nullable)
 - is_premium (boolean, default false)
 - timestamps
+
+**Diagrama del modelo de datos con clientes:**
+
+```mermaid
+erDiagram
+    CATEGORIES {
+        bigint id PK
+        string name
+        string slug UK
+        text description
+        string color
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    PRODUCTS {
+        bigint id PK
+        string name
+        text description
+        decimal price
+        integer stock
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    CUSTOMERS {
+        bigint id PK
+        string first_name
+        string last_name
+        string email UK
+        string phone
+        date birth_date
+        boolean is_premium
+        timestamp created_at
+        timestamp updated_at
+    }
+```
 
 **Solución:**
 
@@ -225,9 +307,9 @@ return new class extends Migration
 
 ---
 
-## 🔗 Bloque 2: Modelos y Relaciones (1.5 horas)
+## Bloque 2: Modelos y Relaciones
 
-### 2.1 Introducción a los Modelos Eloquent (20 minutos)
+### 2.1 Introducción a los Modelos Eloquent
 
 Los **modelos** en Laravel representan las tablas de la base de datos y nos permiten interactuar con ellas de forma intuitiva.
 
@@ -258,15 +340,12 @@ php artisan make:model Customer
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Category extends Model
 {
     use HasFactory;
-
-    // Nombre de la tabla (opcional si sigue convenciones)
-    protected $table = 'categories';
 
     // Campos que se pueden asignar masivamente
     protected $fillable = [
@@ -290,7 +369,7 @@ class Category extends Model
 }
 ```
 
-### 2.2 Operaciones CRUD Básicas (25 minutos)
+### 2.2 Operaciones CRUD Básicas
 
 Vamos a crear un archivo PHP simple para practicar operaciones básicas:
 
@@ -298,7 +377,7 @@ Vamos a crear un archivo PHP simple para practicar operaciones básicas:
 
 ```bash
 # Crear archivo para prácticas
-touch /workspaces/microservicios-api/practica_modelos.php
+touch ./practica_modelos.php
 ```
 
 **Contenido del archivo de práctica:**
@@ -400,7 +479,7 @@ echo "\n=== FIN DE LA PRÁCTICA ===\n";
 php practica_modelos.php
 ```
 
-### 2.3 Relaciones entre Modelos (25 minutos)
+### 2.3 Relaciones entre Modelos
 
 Las relaciones son una de las características más poderosas de Eloquent. Vamos a implementar relaciones entre nuestras tablas.
 
@@ -409,6 +488,48 @@ Las relaciones son una de las características más poderosas de Eloquent. Vamos
 ```bash
 # Crear migración para agregar foreign key
 php artisan make:migration add_category_id_to_products_table
+```
+
+**Diagrama del modelo con primera relación:**
+
+```mermaid
+erDiagram
+    CATEGORIES {
+        bigint id PK
+        string name
+        string slug UK
+        text description
+        string color
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    PRODUCTS {
+        bigint id PK
+        string name
+        text description
+        decimal price
+        integer stock
+        boolean is_active
+        bigint category_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    CUSTOMERS {
+        bigint id PK
+        string first_name
+        string last_name
+        string email UK
+        string phone
+        date birth_date
+        boolean is_premium
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    CATEGORIES ||--o{ PRODUCTS : "has many"
 ```
 
 **Contenido de la migración:**
@@ -521,6 +642,73 @@ php artisan make:migration create_orders_table
 php artisan make:migration create_order_product_table
 ```
 
+**Diagrama del modelo completo con relaciones muchos a muchos:**
+
+```mermaid
+erDiagram
+    CATEGORIES {
+        bigint id PK
+        string name
+        string slug UK
+        text description
+        string color
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    PRODUCTS {
+        bigint id PK
+        string name
+        text description
+        decimal price
+        integer stock
+        boolean is_active
+        bigint category_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    CUSTOMERS {
+        bigint id PK
+        string first_name
+        string last_name
+        string email UK
+        string phone
+        date birth_date
+        boolean is_premium
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    ORDERS {
+        bigint id PK
+        bigint customer_id FK
+        string order_number UK
+        decimal total
+        string status
+        timestamp order_date
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    ORDER_PRODUCT {
+        bigint id PK
+        bigint order_id FK
+        bigint product_id FK
+        integer quantity
+        decimal unit_price
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    CATEGORIES ||--o{ PRODUCTS : "has many"
+    CUSTOMERS ||--o{ ORDERS : "has many"
+    ORDERS ||--o{ ORDER_PRODUCT : "has many"
+    PRODUCTS ||--o{ ORDER_PRODUCT : "has many"
+    ORDERS }o--o{ PRODUCTS : "many to many"
+```
+
 **Migración de orders:**
 
 ```php
@@ -582,7 +770,7 @@ return new class extends Migration
 };
 ```
 
-### 2.4 Seeders y Factories (20 minutos)
+### 2.4 Seeders y Factories
 
 Los **seeders** nos permiten poblar la base de datos con datos de prueba de forma automatizada.
 
@@ -765,13 +953,13 @@ php artisan db:seed
 
 ---
 
-## ☕ Descanso (15 minutos)
+## Descanso
 
 ---
 
-## 🎯 Bloque 3: Práctica Avanzada (1 hora)
+## Bloque 3: Práctica Avanzada
 
-### 3.1 Mapeo SQL a Eloquent (20 minutos)
+### 3.1 Mapeo SQL a Eloquent
 
 Una de las habilidades más importantes es saber cómo convertir consultas SQL tradicionales a Eloquent. Veamos los casos más comunes:
 
@@ -876,7 +1064,7 @@ foreach ($lowStockByCategory as $product) {
 echo "\n=== FIN DEL MAPEO ===\n";
 ```
 
-### 3.2 Modificación de Tablas (20 minutos)
+### 3.2 Modificación de Tablas
 
 En el desarrollo real, necesitamos modificar las tablas existentes. Veamos cómo hacerlo correctamente:
 
@@ -885,6 +1073,76 @@ En el desarrollo real, necesitamos modificar las tablas existentes. Veamos cómo
 ```bash
 # Agregar campo image_url a products
 php artisan make:migration add_image_url_to_products_table
+```
+
+**Diagrama del modelo con campos adicionales:**
+
+```mermaid
+erDiagram
+    CATEGORIES {
+        bigint id PK
+        string name
+        string slug UK
+        text description
+        string color
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    PRODUCTS {
+        bigint id PK
+        string name
+        string sku UK
+        text description
+        string image_url
+        decimal price
+        decimal weight
+        integer stock
+        boolean is_active
+        bigint category_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    CUSTOMERS {
+        bigint id PK
+        string first_name
+        string last_name
+        string email UK
+        string phone
+        date birth_date
+        boolean is_premium
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    ORDERS {
+        bigint id PK
+        bigint customer_id FK
+        string order_number UK
+        decimal total
+        string status
+        timestamp order_date
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    ORDER_PRODUCT {
+        bigint id PK
+        bigint order_id FK
+        bigint product_id FK
+        integer quantity
+        decimal unit_price
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    CATEGORIES ||--o{ PRODUCTS : "has many"
+    CUSTOMERS ||--o{ ORDERS : "has many"
+    ORDERS ||--o{ ORDER_PRODUCT : "has many"
+    PRODUCTS ||--o{ ORDER_PRODUCT : "has many"
+    ORDERS }o--o{ PRODUCTS : "many to many"
 ```
 
 **Contenido de la migración:**
@@ -990,7 +1248,7 @@ return new class extends Migration
 };
 ```
 
-### 3.3 Caso Práctico Complejo (20 minutos)
+### 3.3 Caso Práctico Complejo
 
 Vamos a crear un sistema más complejo con **reseñas de productos**:
 
@@ -999,6 +1257,90 @@ Vamos a crear un sistema más complejo con **reseñas de productos**:
 ```bash
 # Crear migración y modelo
 php artisan make:model Review -m
+```
+
+**Diagrama del modelo final completo con reviews:**
+
+```mermaid
+erDiagram
+    CATEGORIES {
+        bigint id PK
+        string name
+        string slug UK
+        text description
+        string color
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    PRODUCTS {
+        bigint id PK
+        string name
+        string sku UK
+        text description
+        string image_url
+        decimal price
+        decimal weight
+        integer stock
+        boolean is_active
+        bigint category_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    CUSTOMERS {
+        bigint id PK
+        string first_name
+        string last_name
+        string email UK
+        string phone
+        date birth_date
+        boolean is_premium
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    ORDERS {
+        bigint id PK
+        bigint customer_id FK
+        string order_number UK
+        decimal total
+        string status
+        timestamp order_date
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    ORDER_PRODUCT {
+        bigint id PK
+        bigint order_id FK
+        bigint product_id FK
+        integer quantity
+        decimal unit_price
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    REVIEWS {
+        bigint id PK
+        bigint product_id FK
+        bigint customer_id FK
+        integer rating
+        text comment
+        boolean is_verified_purchase
+        timestamp reviewed_at
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    CATEGORIES ||--o{ PRODUCTS : "has many"
+    CUSTOMERS ||--o{ ORDERS : "has many"
+    CUSTOMERS ||--o{ REVIEWS : "has many"
+    PRODUCTS ||--o{ REVIEWS : "has many"
+    ORDERS ||--o{ ORDER_PRODUCT : "has many"
+    PRODUCTS ||--o{ ORDER_PRODUCT : "has many"
+    ORDERS }o--o{ PRODUCTS : "many to many"
 ```
 
 **Migración para reviews:**
@@ -1257,7 +1599,7 @@ echo "\n=== FIN DEL CASO PRÁCTICO ===\n";
 
 ---
 
-## 📝 Ejercicios para Practicar
+## Ejercicios para Practicar
 
 ### Ejercicio 1: Sistema de Tags
 Crear un sistema de etiquetas para productos (relación muchos a muchos):
@@ -1268,6 +1610,38 @@ Crear un sistema de etiquetas para productos (relación muchos a muchos):
 4. Crear seeder para tags
 5. Asignar tags a productos
 
+**Diagrama propuesto para el ejercicio:**
+
+```mermaid
+erDiagram
+    PRODUCTS {
+        bigint id PK
+        string name
+        bigint category_id FK
+    }
+    
+    TAGS {
+        bigint id PK
+        string name
+        string slug UK
+        string color
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    PRODUCT_TAG {
+        bigint id PK
+        bigint product_id FK
+        bigint tag_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    PRODUCTS ||--o{ PRODUCT_TAG : "has many"
+    TAGS ||--o{ PRODUCT_TAG : "has many"
+    PRODUCTS }o--o{ TAGS : "many to many"
+```
+
 ### Ejercicio 2: Sistema de Inventario
 Extender el sistema con control de inventario:
 
@@ -1275,6 +1649,32 @@ Extender el sistema con control de inventario:
 2. Registrar entradas y salidas de stock
 3. Crear métodos para actualizar stock automáticamente
 4. Implementar alertas de stock bajo
+
+**Diagrama propuesto para el ejercicio:**
+
+```mermaid
+erDiagram
+    PRODUCTS {
+        bigint id PK
+        string name
+        integer stock
+    }
+    
+    INVENTORY_MOVEMENTS {
+        bigint id PK
+        bigint product_id FK
+        string type
+        integer quantity
+        integer stock_before
+        integer stock_after
+        string reason
+        bigint user_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    PRODUCTS ||--o{ INVENTORY_MOVEMENTS : "has many"
+```
 
 ### Ejercicio 3: Sistema de Descuentos
 Implementar sistema de descuentos:
@@ -1284,9 +1684,44 @@ Implementar sistema de descuentos:
 3. Calcular precios con descuento
 4. Validar fechas de vigencia
 
+**Diagrama propuesto para el ejercicio:**
+
+```mermaid
+erDiagram
+    PRODUCTS {
+        bigint id PK
+        string name
+        decimal price
+        bigint category_id FK
+    }
+    
+    CATEGORIES {
+        bigint id PK
+        string name
+    }
+    
+    DISCOUNTS {
+        bigint id PK
+        string name
+        string type
+        decimal value
+        bigint product_id FK
+        bigint category_id FK
+        date start_date
+        date end_date
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    PRODUCTS ||--o{ DISCOUNTS : "can have"
+    CATEGORIES ||--o{ DISCOUNTS : "can have"
+    CATEGORIES ||--o{ PRODUCTS : "has many"
+```
+
 ---
 
-## 🎯 Resumen del Taller
+## Resumen del Taller
 
 ### Conceptos Aprendidos
 
@@ -1343,7 +1778,7 @@ Implementar sistema de descuentos:
 
 ---
 
-## 📚 Recursos Adicionales
+## Recursos Adicionales
 
 ### Documentación Oficial
 - [Laravel Migrations](https://laravel.com/docs/migrations)
@@ -1379,10 +1814,10 @@ php artisan db:seed --class=SeederName
 
 ---
 
-## 🏁 Conclusión
+## Conclusión
 
 En este taller hemos cubierto los fundamentos del almacenamiento de datos en Laravel, desde las migraciones básicas hasta relaciones complejas y consultas avanzadas. El sistema ORM Eloquent es una herramienta poderosa que facilita enormemente el trabajo con bases de datos.
 
 **Recuerda**: La práctica es clave. Continúa experimentando con diferentes tipos de relaciones y consultas para dominar completamente estas herramientas.
 
-¡Felicitaciones por completar el taller! 🎉
+¡Felicitaciones por completar el taller!
