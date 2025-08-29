@@ -1313,7 +1313,3 @@ Model::where('field', 'value')->get()
 3. Implementar Observers para eventos de modelo
 4. Explorar Query Scopes para consultas reutilizables
 5. Practicar con consultas avanzadas y optimización
-
-## Conclusión
-
-En este taller hemos cubierto los fundamentos del almacenamiento de datos en Laravel, desde las migraciones básicas hasta consultas avanzadas con Eloquent. El sistema ORM Eloquent es una herramienta poderosa que facilita enormemente el trabajo con bases de datos.
