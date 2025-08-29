@@ -1278,8 +1278,6 @@ Implementar sistema de búsquedas complejas:
    - Crear índices apropiados
    - Limitar resultados cuando sea necesario
 
----
-
 ## Recursos Adicionales
 
 ### Documentación Oficial
