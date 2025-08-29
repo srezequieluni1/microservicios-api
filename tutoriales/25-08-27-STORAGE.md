@@ -25,10 +25,10 @@ Al finalizar este taller, los estudiantes serán capaces de:
 - Configuración inicial y creación de rama de trabajo
 - Migraciones básicas
 
-### Bloque 2: Modelos y Relaciones
+### Bloque 2: Modelos y Datos
 - Creación de modelos
-- Relaciones entre modelos
-- Seeders y Factory
+- Operaciones CRUD básicas
+- Métodos Eloquent fundamentales
 
 ### Descanso
 
@@ -307,7 +307,7 @@ return new class extends Migration
 
 ---
 
-## Bloque 2: Modelos y Relaciones
+## Bloque 2: Modelos y Datos
 
 ### 2.1 Introducción a los Modelos Eloquent
 
@@ -687,478 +687,6 @@ php practica_eloquent_methods.php
 5. Ropa y Accesorios (ropa-accesorios) - #28a745 - Color: #28a745 hace 25 minutos
 === TOTAL DE CATEGORÍAS: 5 ===
 === FIN DE LA PRÁCTICA ===
-```
-
-### 2.3 Relaciones entre Modelos
-
-Las relaciones son una de las características más poderosas de Eloquent. Vamos a implementar relaciones entre nuestras tablas.
-
-#### Paso 1: Modificar la migración de productos para incluir category_id
-
-```bash
-# Crear migración para agregar foreign key
-php artisan make:migration add_category_id_to_products_table
-```
-
-**Diagrama del modelo con primera relación:**
-
-```mermaid
-erDiagram
-    CATEGORIES {
-        bigint id PK
-        string name
-        string slug UK
-        text description
-        string color
-        boolean is_active
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    PRODUCTS {
-        bigint id PK
-        string name
-        text description
-        decimal price
-        integer stock
-        boolean is_active
-        bigint category_id FK
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    CUSTOMERS {
-        bigint id PK
-        string first_name
-        string last_name
-        string email UK
-        string phone
-        date birth_date
-        boolean is_premium
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    CATEGORIES ||--o{ PRODUCTS : "has many"
-```
-
-**Contenido de la migración:**
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::table('products', function (Blueprint $table) {
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropForeign(['category_id']);
-            $table->dropColumn('category_id');
-        });
-    }
-};
-```
-
-#### Paso 2: Definir las relaciones en los modelos
-
-**Modelo Category:**
-
-```php
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class Category extends Model
-{
-    use HasFactory;
-
-    protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'color',
-        'is_active'
-    ];
-
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
-
-    // Relación: Una categoría tiene muchos productos
-    public function products()
-    {
-        return $this->hasMany(Product::class);
-    }
-}
-```
-
-**Modelo Product:**
-
-```php
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class Product extends Model
-{
-    use HasFactory;
-
-    protected $fillable = [
-        'name',
-        'description',
-        'price',
-        'stock',
-        'is_active',
-        'category_id'
-    ];
-
-    protected $casts = [
-        'price' => 'decimal:2',
-        'is_active' => 'boolean',
-    ];
-
-    // Relación: Un producto pertenece a una categoría
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
-}
-```
-
-#### Paso 3: Crear tabla de pedidos para relación muchos a muchos
-
-```bash
-# Crear migración para orders
-php artisan make:migration create_orders_table
-
-# Crear migración para la tabla pivot
-php artisan make:migration create_order_product_table
-```
-
-**Diagrama del modelo completo con relaciones muchos a muchos:**
-
-```mermaid
-erDiagram
-    CATEGORIES {
-        bigint id PK
-        string name
-        string slug UK
-        text description
-        string color
-        boolean is_active
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    PRODUCTS {
-        bigint id PK
-        string name
-        text description
-        decimal price
-        integer stock
-        boolean is_active
-        bigint category_id FK
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    CUSTOMERS {
-        bigint id PK
-        string first_name
-        string last_name
-        string email UK
-        string phone
-        date birth_date
-        boolean is_premium
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    ORDERS {
-        bigint id PK
-        bigint customer_id FK
-        string order_number UK
-        decimal total
-        string status
-        timestamp order_date
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    ORDER_PRODUCT {
-        bigint id PK
-        bigint order_id FK
-        bigint product_id FK
-        integer quantity
-        decimal unit_price
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    CATEGORIES ||--o{ PRODUCTS : "has many"
-    CUSTOMERS ||--o{ ORDERS : "has many"
-    ORDERS ||--o{ ORDER_PRODUCT : "has many"
-    PRODUCTS ||--o{ ORDER_PRODUCT : "has many"
-    ORDERS }o--o{ PRODUCTS : "many to many"
-```
-
-**Migración de orders:**
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
-            $table->string('order_number')->unique();
-            $table->decimal('total', 10, 2);
-            $table->enum('status', ['pending', 'processing', 'shipped', 'delivered', 'cancelled']);
-            $table->timestamp('order_date');
-            $table->timestamps();
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('orders');
-    }
-};
-```
-
-**Migración de la tabla pivot order_product:**
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('order_product', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('order_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->integer('quantity');
-            $table->decimal('unit_price', 8, 2);
-            $table->timestamps();
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('order_product');
-    }
-};
-```
-
-### 2.4 Seeders y Factories
-
-Los **seeders** nos permiten poblar la base de datos con datos de prueba de forma automatizada.
-
-#### Crear seeders:
-
-```bash
-# Crear seeders
-php artisan make:seeder CategorySeeder
-php artisan make:seeder ProductSeeder
-php artisan make:seeder CustomerSeeder
-```
-
-**CategorySeeder:**
-
-```php
-<?php
-
-namespace Database\Seeders;
-
-use App\Models\Category;
-use Illuminate\Database\Seeder;
-
-class CategorySeeder extends Seeder
-{
-    public function run(): void
-    {
-        $categories = [
-            [
-                'name' => 'Electrónicos',
-                'slug' => 'electronicos',
-                'description' => 'Productos electrónicos y tecnología',
-                'color' => '#007bff',
-                'is_active' => true
-            ],
-            [
-                'name' => 'Ropa y Accesorios',
-                'slug' => 'ropa-accesorios',
-                'description' => 'Vestimenta y accesorios de moda',
-                'color' => '#28a745',
-                'is_active' => true
-            ],
-            [
-                'name' => 'Hogar y Jardín',
-                'slug' => 'hogar-jardin',
-                'description' => 'Artículos para el hogar y jardinería',
-                'color' => '#ffc107',
-                'is_active' => true
-            ],
-            [
-                'name' => 'Deportes',
-                'slug' => 'deportes',
-                'description' => 'Equipos y accesorios deportivos',
-                'color' => '#dc3545',
-                'is_active' => true
-            ]
-        ];
-
-        foreach ($categories as $categoryData) {
-            Category::create($categoryData);
-        }
-    }
-}
-```
-
-**ProductSeeder:**
-
-```php
-<?php
-
-namespace Database\Seeders;
-
-use App\Models\Product;
-use App\Models\Category;
-use Illuminate\Database\Seeder;
-
-class ProductSeeder extends Seeder
-{
-    public function run(): void
-    {
-        $electronics = Category::where('slug', 'electronicos')->first();
-        $clothing = Category::where('slug', 'ropa-accesorios')->first();
-        $home = Category::where('slug', 'hogar-jardin')->first();
-        $sports = Category::where('slug', 'deportes')->first();
-
-        $products = [
-            // Electrónicos
-            [
-                'name' => 'iPhone 15 Pro',
-                'description' => 'Smartphone Apple con pantalla de 6.1 pulgadas',
-                'price' => 999.99,
-                'stock' => 50,
-                'is_active' => true,
-                'category_id' => $electronics->id
-            ],
-            [
-                'name' => 'Laptop HP Pavilion',
-                'description' => 'Laptop con procesador Intel i7 y 16GB RAM',
-                'price' => 799.99,
-                'stock' => 25,
-                'is_active' => true,
-                'category_id' => $electronics->id
-            ],
-            
-            // Ropa
-            [
-                'name' => 'Camiseta Básica',
-                'description' => 'Camiseta de algodón 100% en varios colores',
-                'price' => 19.99,
-                'stock' => 100,
-                'is_active' => true,
-                'category_id' => $clothing->id
-            ],
-            [
-                'name' => 'Jeans Clásicos',
-                'description' => 'Pantalón jean de corte clásico',
-                'price' => 49.99,
-                'stock' => 75,
-                'is_active' => true,
-                'category_id' => $clothing->id
-            ],
-            
-            // Hogar
-            [
-                'name' => 'Aspiradora Robot',
-                'description' => 'Aspiradora automática con WiFi',
-                'price' => 299.99,
-                'stock' => 20,
-                'is_active' => true,
-                'category_id' => $home->id
-            ],
-            
-            // Deportes
-            [
-                'name' => 'Balón de Fútbol',
-                'description' => 'Balón oficial de fútbol profesional',
-                'price' => 39.99,
-                'stock' => 40,
-                'is_active' => true,
-                'category_id' => $sports->id
-            ]
-        ];
-
-        foreach ($products as $productData) {
-            Product::create($productData);
-        }
-    }
-}
-```
-
-**Actualizar DatabaseSeeder:**
-
-```php
-<?php
-
-namespace Database\Seeders;
-
-use Illuminate\Database\Seeder;
-
-class DatabaseSeeder extends Seeder
-{
-    public function run(): void
-    {
-        $this->call([
-            CategorySeeder::class,
-            ProductSeeder::class,
-        ]);
-    }
-}
-```
-
-**Ejecutar los seeders:**
-
-```bash
-# Ejecutar migraciones y seeders
-php artisan migrate --seed
-
-# O solo los seeders
-php artisan db:seed
 ```
 
 ---
@@ -1795,123 +1323,44 @@ echo "\n=== FIN DEL CASO PRÁCTICO ===\n";
 
 ## Ejercicios para Practicar
 
-### Ejercicio 1: Sistema de Tags
-Crear un sistema de etiquetas para productos (relación muchos a muchos):
+### Ejercicio 1: Ampliar el modelo Customer
+Agregar campos adicionales al modelo `Customer`:
 
-1. Crear migración para tabla `tags`
-2. Crear tabla pivot `product_tag`
-3. Definir relaciones en los modelos
-4. Crear seeder para tags
-5. Asignar tags a productos
+1. Crear migración para agregar campos:
+   - `address` (text, nullable)
+   - `city` (string, nullable)
+   - `postal_code` (string, nullable)
+   - `country` (string, default 'España')
 
-**Diagrama propuesto para el ejercicio:**
+2. Actualizar el modelo Customer
+3. Crear seeder para clientes con direcciones
+4. Practicar consultas con los nuevos campos
 
-```mermaid
-erDiagram
-    PRODUCTS {
-        bigint id PK
-        string name
-        bigint category_id FK
-    }
-    
-    TAGS {
-        bigint id PK
-        string name
-        string slug UK
-        string color
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    PRODUCT_TAG {
-        bigint id PK
-        bigint product_id FK
-        bigint tag_id FK
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    PRODUCTS ||--o{ PRODUCT_TAG : "has many"
-    TAGS ||--o{ PRODUCT_TAG : "has many"
-    PRODUCTS }o--o{ TAGS : "many to many"
-```
+### Ejercicio 2: Sistema de Stock Avanzado
+Extender el sistema de productos con mejor control de stock:
 
-### Ejercicio 2: Sistema de Inventario
-Extender el sistema con control de inventario:
+1. Agregar campos a productos:
+   - `min_stock` (integer, default 5)
+   - `max_stock` (integer, default 100)
+   - `status` (enum: available, out_of_stock, discontinued)
 
-1. Crear tabla `inventory_movements`
-2. Registrar entradas y salidas de stock
-3. Crear métodos para actualizar stock automáticamente
-4. Implementar alertas de stock bajo
+2. Crear métodos en el modelo:
+   - `isLowStock()` - detectar stock bajo
+   - `isOutOfStock()` - detectar sin stock
+   - `updateStock($quantity)` - actualizar stock
 
-**Diagrama propuesto para el ejercicio:**
+3. Crear consultas para:
+   - Productos con stock bajo
+   - Productos más vendidos
+   - Productos descontinuados
 
-```mermaid
-erDiagram
-    PRODUCTS {
-        bigint id PK
-        string name
-        integer stock
-    }
-    
-    INVENTORY_MOVEMENTS {
-        bigint id PK
-        bigint product_id FK
-        string type
-        integer quantity
-        integer stock_before
-        integer stock_after
-        string reason
-        bigint user_id FK
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    PRODUCTS ||--o{ INVENTORY_MOVEMENTS : "has many"
-```
+### Ejercicio 3: Búsquedas Avanzadas
+Implementar sistema de búsquedas complejas:
 
-### Ejercicio 3: Sistema de Descuentos
-Implementar sistema de descuentos:
-
-1. Crear tabla `discounts`
-2. Aplicar descuentos por categoría o producto específico
-3. Calcular precios con descuento
-4. Validar fechas de vigencia
-
-**Diagrama propuesto para el ejercicio:**
-
-```mermaid
-erDiagram
-    PRODUCTS {
-        bigint id PK
-        string name
-        decimal price
-        bigint category_id FK
-    }
-    
-    CATEGORIES {
-        bigint id PK
-        string name
-    }
-    
-    DISCOUNTS {
-        bigint id PK
-        string name
-        string type
-        decimal value
-        bigint product_id FK
-        bigint category_id FK
-        date start_date
-        date end_date
-        boolean is_active
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    PRODUCTS ||--o{ DISCOUNTS : "can have"
-    CATEGORIES ||--o{ DISCOUNTS : "can have"
-    CATEGORIES ||--o{ PRODUCTS : "has many"
-```
+1. Crear consultas que combinen múltiples condiciones
+2. Implementar filtros por rango de precios
+3. Buscar productos por texto en nombre y descripción
+4. Ordenar resultados por diferentes criterios
 
 ---
 
@@ -1929,24 +1378,19 @@ erDiagram
    - Creación de modelos
    - Configuración de fillable y casts
    - Operaciones CRUD básicas
-   - Relaciones entre modelos
+   - Métodos fundamentales (create, find, where, save, etc.)
 
-3. **Seeders**:
-   - Poblar base de datos con datos de prueba
-   - Organizar seeders por entidad
-   - Ejecutar seeders de forma selectiva
-
-4. **Mapeo SQL ↔ Eloquent**:
+3. **Mapeo SQL ↔ Eloquent**:
    - Conversión de consultas SQL comunes
    - Uso de Query Builder
-   - Consultas con relaciones
-   - Agregaciones y agrupaciones
+   - Consultas básicas y filtrados
+   - Agregaciones simples
 
-5. **Relaciones**:
-   - One to Many (hasMany/belongsTo)
-   - Many to Many (belongsToMany)
-   - Carga eager loading
-   - Consultas con relaciones
+4. **Modificación de Esquemas**:
+   - Agregar campos a tablas existentes
+   - Modificar tipos de datos
+   - Crear índices para optimización
+   - Gestionar cambios en producción
 
 ### Mejores Prácticas Aprendidas
 
@@ -1991,27 +1435,27 @@ php artisan migrate:fresh --seed
 # Modelos
 php artisan make:model ModelName
 php artisan make:model ModelName -m  # Con migración
-php artisan make:model ModelName -mfs # Con migración, factory y seeder
 
-# Seeders
-php artisan make:seeder SeederName
-php artisan db:seed
-php artisan db:seed --class=SeederName
+# Consultas básicas en tinker
+php artisan tinker
+Model::all()
+Model::find(1)
+Model::where('field', 'value')->get()
 ```
 
 ### Próximos Pasos
-1. Estudiar Factory para generar datos de prueba masivos
-2. Aprender sobre Mutators y Accessors
+1. Estudiar Relaciones entre Modelos (ver tutorial específico)
+2. Aprender Seeders y Factory (ver tutorial específico) 
 3. Implementar Observers para eventos de modelo
 4. Explorar Query Scopes para consultas reutilizables
-5. Practicar con relaciones polimórficas
+5. Practicar con consultas avanzadas y optimización
 
 ---
 
 ## Conclusión
 
-En este taller hemos cubierto los fundamentos del almacenamiento de datos en Laravel, desde las migraciones básicas hasta relaciones complejas y consultas avanzadas. El sistema ORM Eloquent es una herramienta poderosa que facilita enormemente el trabajo con bases de datos.
+En este taller hemos cubierto los fundamentos del almacenamiento de datos en Laravel, desde las migraciones básicas hasta consultas avanzadas con Eloquent. El sistema ORM Eloquent es una herramienta poderosa que facilita enormemente el trabajo con bases de datos.
 
-**Recuerda**: La práctica es clave. Continúa experimentando con diferentes tipos de relaciones y consultas para dominar completamente estas herramientas.
+**Recuerda**: La práctica es clave. Continúa experimentando con diferentes tipos de consultas y migraciones para dominar completamente estas herramientas. Para temas más avanzados como relaciones entre modelos, consulta el tutorial específico sobre ese tema.
 
 ¡Felicitaciones por completar el taller!
