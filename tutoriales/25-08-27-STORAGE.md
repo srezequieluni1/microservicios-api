@@ -689,12 +689,6 @@ php practica_eloquent_methods.php
 === FIN DE LA PRÁCTICA ===
 ```
 
----
-
-## Descanso
-
----
-
 ## Bloque 3: Práctica Avanzada
 
 ### 3.1 Mapeo SQL a Eloquent
@@ -716,91 +710,6 @@ Una de las habilidades más importantes es saber cómo convertir consultas SQL t
 | `INSERT INTO products (...) VALUES (...)` | `Product::create([...])` |
 | `UPDATE products SET price = 100 WHERE id = 1` | `Product::find(1)->update(['price' => 100])` |
 | `DELETE FROM products WHERE id = 1` | `Product::find(1)->delete()` |
-
-#### Ejemplos prácticos:
-
-```php
-<?php
-
-require_once 'vendor/autoload.php';
-$app = require_once 'bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-
-use App\Models\Category;
-use App\Models\Product;
-
-echo "=== MAPEO SQL A ELOQUENT ===\n\n";
-
-// 1. Consultas básicas
-echo "1. CONSULTAS BÁSICAS:\n";
-
-// SQL: SELECT * FROM products WHERE stock > 50
-$productsWithStock = Product::where('stock', '>', 50)->get();
-echo "Productos con stock > 50: " . $productsWithStock->count() . "\n";
-
-// SQL: SELECT * FROM products WHERE price BETWEEN 20 AND 100
-$affordableProducts = Product::whereBetween('price', [20, 100])->get();
-echo "Productos entre $20 y $100: " . $affordableProducts->count() . "\n";
-
-// SQL: SELECT * FROM products WHERE name LIKE '%iPhone%'
-$iphones = Product::where('name', 'like', '%iPhone%')->get();
-echo "Productos que contienen 'iPhone': " . $iphones->count() . "\n\n";
-
-// 2. Consultas con JOIN
-echo "2. CONSULTAS CON RELACIONES:\n";
-
-// SQL: SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
-$productsWithCategory = Product::with('category')->get();
-foreach ($productsWithCategory->take(3) as $product) {
-    echo "- {$product->name} (Categoría: {$product->category->name})\n";
-}
-
-echo "\n";
-
-// 3. Consultas agregadas
-echo "3. CONSULTAS AGREGADAS:\n";
-
-// SQL: SELECT COUNT(*) FROM products
-$totalProducts = Product::count();
-echo "Total de productos: {$totalProducts}\n";
-
-// SQL: SELECT AVG(price) FROM products
-$averagePrice = Product::avg('price');
-echo "Precio promedio: $" . number_format($averagePrice, 2) . "\n";
-
-// SQL: SELECT category_id, COUNT(*) FROM products GROUP BY category_id
-$productsByCategory = Product::selectRaw('category_id, count(*) as total')
-    ->groupBy('category_id')
-    ->with('category')
-    ->get();
-
-echo "Productos por categoría:\n";
-foreach ($productsByCategory as $group) {
-    echo "- {$group->category->name}: {$group->total} productos\n";
-}
-
-echo "\n";
-
-// 4. Consultas complejas
-echo "4. CONSULTAS COMPLEJAS:\n";
-
-// SQL: SELECT * FROM products WHERE price > (SELECT AVG(price) FROM products)
-$expensiveProducts = Product::where('price', '>', Product::avg('price'))->get();
-echo "Productos más caros que el promedio: " . $expensiveProducts->count() . "\n";
-
-// Productos con stock bajo por categoría
-$lowStockByCategory = Product::where('stock', '<', 30)
-    ->with('category')
-    ->orderBy('stock', 'asc')
-    ->get();
-
-echo "Productos con stock bajo:\n";
-foreach ($lowStockByCategory as $product) {
-    echo "- {$product->name}: {$product->stock} unidades ({$product->category->name})\n";
-}
-
-echo "\n=== FIN DEL MAPEO ===\n";
-```
 
 ### 3.2 Modificación de Tablas
 
@@ -832,6 +741,7 @@ erDiagram
         bigint id PK
         string name
         text description
+        string image_url
         decimal price
         decimal weight
         integer stock
@@ -852,33 +762,8 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
-    ORDERS {
-        bigint id PK
-        bigint customer_id FK
-        string order_number UK
-        decimal total
-        string status
-        timestamp order_date
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    ORDER_PRODUCT {
-        bigint id PK
-        bigint order_id FK
-        bigint product_id FK
-        integer quantity
-        decimal unit_price
-        timestamp created_at
-        timestamp updated_at
-    }
-    
+
     CATEGORIES ||--o{ PRODUCTS : "has many"
-    CUSTOMERS ||--o{ ORDERS : "has many"
-    ORDERS ||--o{ ORDER_PRODUCT : "has many"
-    PRODUCTS ||--o{ ORDER_PRODUCT : "has many"
-    ORDERS }o--o{ PRODUCTS : "many to many"
 ```
 
 **Contenido de la migración:**
@@ -896,15 +781,18 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->string('image_url')->nullable()->after('description');
-            $table->string('sku')->unique()->after('name');
             $table->decimal('weight', 5, 2)->nullable()->after('price');
+            // agrega la relación con Categoría
+            $table->foreignId('category_id')->constrained()->onDelete('cascade');
         });
     }
 
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn(['image_url', 'sku', 'weight']);
+            $table->dropColumn(['image_url', 'weight']);
+            $table->dropForeign(['category_id']);
+            $table->dropColumn('category_id');
         });
     }
 };
@@ -994,6 +882,7 @@ Vamos a crear un sistema más complejo con **reseñas de productos**:
 # Crear migración y modelo
 php artisan make:model Review -m
 ```
+>**Nota**: El parámetro `-m` instruye a artisan a crear tanto el modelo como su migración.
 
 **Diagrama del modelo final completo con reviews:**
 
@@ -1035,27 +924,6 @@ erDiagram
         timestamp updated_at
     }
     
-    ORDERS {
-        bigint id PK
-        bigint customer_id FK
-        string order_number UK
-        decimal total
-        string status
-        timestamp order_date
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    ORDER_PRODUCT {
-        bigint id PK
-        bigint order_id FK
-        bigint product_id FK
-        integer quantity
-        decimal unit_price
-        timestamp created_at
-        timestamp updated_at
-    }
-    
     REVIEWS {
         bigint id PK
         bigint product_id FK
@@ -1069,12 +937,8 @@ erDiagram
     }
     
     CATEGORIES ||--o{ PRODUCTS : "has many"
-    CUSTOMERS ||--o{ ORDERS : "has many"
     CUSTOMERS ||--o{ REVIEWS : "has many"
     PRODUCTS ||--o{ REVIEWS : "has many"
-    ORDERS ||--o{ ORDER_PRODUCT : "has many"
-    PRODUCTS ||--o{ ORDER_PRODUCT : "has many"
-    ORDERS }o--o{ PRODUCTS : "many to many"
 ```
 
 **Migración para reviews:**
@@ -1450,12 +1314,6 @@ Model::where('field', 'value')->get()
 4. Explorar Query Scopes para consultas reutilizables
 5. Practicar con consultas avanzadas y optimización
 
----
-
 ## Conclusión
 
 En este taller hemos cubierto los fundamentos del almacenamiento de datos en Laravel, desde las migraciones básicas hasta consultas avanzadas con Eloquent. El sistema ORM Eloquent es una herramienta poderosa que facilita enormemente el trabajo con bases de datos.
-
-**Recuerda**: La práctica es clave. Continúa experimentando con diferentes tipos de consultas y migraciones para dominar completamente estas herramientas. Para temas más avanzados como relaciones entre modelos, consulta el tutorial específico sobre ese tema.
-
-¡Felicitaciones por completar el taller!
