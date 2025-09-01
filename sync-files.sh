@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # Script para actualizar archivos comunes desde el branch main
-# Uso: ./sync-common-files.sh [branch-origen] [branch-destino]
+# Uso: ./sync-files.sh [branch-origen] [branch-destino]
+
+# Guardar la ruta completa del script para poder usarla después de cambiar de branch
+SCRIPT_PATH="$(realpath "$0")"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 
 # Colores para output
 RED='\033[0;31m'
@@ -12,7 +16,7 @@ NC='\033[0m' # No Color
 
 # Función para mostrar ayuda
 show_help() {
-    echo -e "${BLUE}Uso: $0 [branch-origen] [branch-destino]${NC}"
+    echo -e "${BLUE}Uso: $(basename "$0") [branch-origen] [branch-destino]${NC}"
     echo ""
     echo "Descripción:"
     echo "  Actualiza archivos comunes que han cambiado desde el branch origen al destino"
@@ -22,9 +26,9 @@ show_help() {
     echo "  branch-destino  Branch al cual aplicar los cambios (default: branch actual)"
     echo ""
     echo "Ejemplos:"
-    echo "  $0                    # Actualiza desde main al branch actual"
-    echo "  $0 main develop      # Actualiza desde main a develop"
-    echo "  $0 --help           # Muestra esta ayuda"
+    echo "  $(basename "$0")                    # Actualiza desde main al branch actual"
+    echo "  $(basename "$0") main develop      # Actualiza desde main a develop"
+    echo "  $(basename "$0") --help           # Muestra esta ayuda"
 }
 
 # Verificar si se solicita ayuda
@@ -58,10 +62,23 @@ fi
 CURRENT_BRANCH=$(git branch --show-current)
 if [[ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]]; then
     echo -e "${YELLOW}Cambiando al branch: $TARGET_BRANCH${NC}"
+    
+    # Verificar si el branch destino existe
+    if ! git show-ref --verify --quiet refs/heads/$TARGET_BRANCH && ! git show-ref --verify --quiet refs/remotes/origin/$TARGET_BRANCH; then
+        echo -e "${RED}Error: El branch '$TARGET_BRANCH' no existe${NC}"
+        exit 1
+    fi
+    
     git checkout $TARGET_BRANCH
     if [[ $? -ne 0 ]]; then
         echo -e "${RED}Error: No se pudo cambiar al branch '$TARGET_BRANCH'${NC}"
         exit 1
+    fi
+    
+    # Verificar si el script sigue existiendo en el nuevo branch
+    if [[ ! -f "$SCRIPT_PATH" ]]; then
+        echo -e "${YELLOW}Nota: El script no existe en el branch '$TARGET_BRANCH'${NC}"
+        echo -e "${YELLOW}Continuando la ejecución desde la versión en memoria...${NC}"
     fi
 fi
 
@@ -78,28 +95,58 @@ fi
 
 # Obtener lista de archivos que han cambiado
 echo -e "${YELLOW}Analizando diferencias entre branches...${NC}"
-CHANGED_FILES=$(git diff --name-only HEAD $SOURCE_REF)
+ALL_CHANGED_FILES=$(git diff --name-only HEAD $SOURCE_REF)
 
-if [[ -z "$CHANGED_FILES" ]]; then
+if [[ -z "$ALL_CHANGED_FILES" ]]; then
     echo -e "${GREEN}✓ No hay diferencias entre los branches${NC}"
     exit 0
 fi
 
-# Filtrar solo archivos que existen en ambos branches (archivos comunes)
+# Filtrar archivos para obtener solo los comunes (que existen en ambos branches)
 COMMON_FILES=""
-while IFS= read -r file; do
-    if [[ -f "$file" ]]; then
-        COMMON_FILES="$COMMON_FILES$file\n"
-    fi
-done <<< "$CHANGED_FILES"
+FILES_ONLY_IN_SOURCE=""
+FILES_ONLY_IN_TARGET=""
 
-# Remover el último \n
+while IFS= read -r file; do
+    if [[ -n "$file" ]]; then
+        # Verificar si el archivo existe en el branch actual (target)
+        if [[ -f "$file" ]]; then
+            # Verificar si el archivo existe en el branch origen
+            if git cat-file -e "$SOURCE_REF:$file" 2>/dev/null; then
+                # El archivo existe en ambos branches - es un archivo común
+                COMMON_FILES="$COMMON_FILES$file\n"
+            else
+                # El archivo solo existe en el branch target
+                FILES_ONLY_IN_TARGET="$FILES_ONLY_IN_TARGET$file\n"
+            fi
+        else
+            # El archivo no existe en el branch actual - solo en origen
+            FILES_ONLY_IN_SOURCE="$FILES_ONLY_IN_SOURCE$file\n"
+        fi
+    fi
+done <<< "$ALL_CHANGED_FILES"
+
+# Limpiar variables (remover \n finales)
 COMMON_FILES=$(echo -e "$COMMON_FILES" | sed '/^$/d')
+FILES_ONLY_IN_SOURCE=$(echo -e "$FILES_ONLY_IN_SOURCE" | sed '/^$/d')
+FILES_ONLY_IN_TARGET=$(echo -e "$FILES_ONLY_IN_TARGET" | sed '/^$/d')
+
+# Mostrar información sobre los archivos encontrados
+if [[ -n "$FILES_ONLY_IN_SOURCE" ]]; then
+    echo -e "${BLUE}Archivos que existen solo en '$SOURCE_REF' (se omitirán):${NC}"
+    echo -e "$FILES_ONLY_IN_SOURCE" | sed 's/^/  /'
+    echo ""
+fi
+
+if [[ -n "$FILES_ONLY_IN_TARGET" ]]; then
+    echo -e "${BLUE}Archivos que existen solo en '$TARGET_BRANCH' (se omitirán):${NC}"
+    echo -e "$FILES_ONLY_IN_TARGET" | sed 's/^/  /'
+    echo ""
+fi
 
 if [[ -z "$COMMON_FILES" ]]; then
     echo -e "${YELLOW}No hay archivos comunes que actualizar${NC}"
-    echo -e "${BLUE}Archivos que han cambiado pero no existen en el branch actual:${NC}"
-    echo "$CHANGED_FILES"
+    echo -e "${GREEN}✓ Todos los archivos son únicos de cada branch${NC}"
     exit 0
 fi
 
