@@ -158,22 +158,6 @@ if [[ -z "$MODIFIED_FILES" && -z "$NEW_FILES" ]]; then
     exit 0
 fi
 
-# Crear backup de los archivos que se van a modificar
-BACKUP_DIR=".backup-$(date +%Y%m%d_%H%M%S)"
-echo -e "${YELLOW}Creando backup en: $BACKUP_DIR${NC}"
-mkdir -p "$BACKUP_DIR"
-
-# Backup solo de archivos modificados (no de nuevos)
-if [[ -n "$MODIFIED_FILES" ]]; then
-    while IFS= read -r file; do
-        if [[ -n "$file" && -f "$file" ]]; then
-            backup_file_dir=$(dirname "$BACKUP_DIR/$file")
-            mkdir -p "$backup_file_dir"
-            cp "$file" "$BACKUP_DIR/$file"
-        fi
-    done <<< "$MODIFIED_FILES"
-fi
-
 echo ""
 echo -e "${CYAN}Iniciando sincronización automática...${NC}"
 
@@ -222,7 +206,6 @@ fi
 if [[ $ERROR_COUNT -gt 0 ]]; then
     echo ""
     echo -e "${RED}Se encontraron $ERROR_COUNT errores durante la sincronización${NC}"
-    echo -e "${YELLOW}Puedes restaurar los archivos desde: $BACKUP_DIR${NC}"
     exit 1
 fi
 
@@ -246,13 +229,6 @@ $(echo -e "$NEW_FILES" | sed 's/^/- /')"
     
     git commit -m "$COMMIT_MSG"
     echo -e "${GREEN}✓ Commit automático realizado${NC}"
-fi
-
-# Mostrar información del backup
-if [[ -d "$BACKUP_DIR" ]]; then
-    echo ""
-    echo -e "${BLUE}📁 Backup creado en: $BACKUP_DIR${NC}"
-    echo -e "${BLUE}   Puedes eliminarlo con: rm -rf $BACKUP_DIR${NC}"
 fi
 
 echo ""
