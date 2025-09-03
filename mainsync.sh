@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script para sincronizar archivos desde main hacia el branch actual
-# Reglas: 
+# Reglas:
 # - Archivos modificados en main: se sobreescriben sin preguntar
 # - Archivos nuevos en main: se agregan al branch
 # - Archivos únicos del branch: se mantienen intactos
@@ -70,13 +70,13 @@ fi
 CURRENT_BRANCH=$(git branch --show-current)
 if [[ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]]; then
     echo -e "${YELLOW}Cambiando al branch: $TARGET_BRANCH${NC}"
-    
+
     # Verificar si el branch destino existe
     if ! git show-ref --verify --quiet refs/heads/$TARGET_BRANCH && ! git show-ref --verify --quiet refs/remotes/origin/$TARGET_BRANCH; then
         echo -e "${RED}Error: El branch '$TARGET_BRANCH' no existe${NC}"
         exit 1
     fi
-    
+
     git checkout $TARGET_BRANCH
     if [[ $? -ne 0 ]]; then
         echo -e "${RED}Error: No se pudo cambiar al branch '$TARGET_BRANCH'${NC}"
@@ -135,7 +135,7 @@ echo ""
 echo -e "${CYAN}=== RESUMEN DE SINCRONIZACIÓN ===${NC}"
 
 if [[ -n "$MODIFIED_FILES" ]]; then
-    echo -e "${YELLOW}Archivos que se sobreescribirán ($(echo -e "$MODIFIED_FILES" | wc -l)):${NC}"
+    echo -e "${YELLOW}Archivos que se sobreescribán ($(echo -e "$MODIFIED_FILES" | wc -l)):${NC}"
     echo -e "$MODIFIED_FILES" | sed 's/^/  ▶ /'
     echo ""
 fi
@@ -184,13 +184,13 @@ if [[ -n "$NEW_FILES" ]]; then
     while IFS= read -r file; do
         if [[ -n "$file" ]]; then
             echo -e "  ${GREEN}Agregando: $file${NC}"
-            
+
             # Crear directorio padre si no existe
             file_dir=$(dirname "$file")
             if [[ "$file_dir" != "." ]]; then
                 mkdir -p "$file_dir"
             fi
-            
+
             git checkout $SOURCE_REF -- "$file"
             if [[ $? -ne 0 ]]; then
                 echo -e "  ${RED}Error agregando: $file${NC}"
@@ -215,20 +215,23 @@ echo -e "${GREEN}✓ Sincronización completada exitosamente${NC}"
 echo -e "${BLUE}Estado del repositorio:${NC}"
 git status --short
 
-# Crear commit automático
+# Mostrar instrucciones para commit manual
 echo ""
 TOTAL_CHANGES=$(($(echo -e "$MODIFIED_FILES" | wc -l) + $(echo -e "$NEW_FILES" | wc -l)))
 if [[ $TOTAL_CHANGES -gt 0 ]]; then
-    COMMIT_MSG="Sync from main: $TOTAL_CHANGES files updated
-
-Modified files ($(echo -e "$MODIFIED_FILES" | wc -l)):
-$(echo -e "$MODIFIED_FILES" | sed 's/^/- /')
-
-New files ($(echo -e "$NEW_FILES" | wc -l)):
-$(echo -e "$NEW_FILES" | sed 's/^/- /')"
-    
-    git commit -m "$COMMIT_MSG"
-    echo -e "${GREEN}✓ Commit automático realizado${NC}"
+    echo -e "${YELLOW}Los cambios están listos para commit manual.${NC}"
+    echo -e "${BLUE}Para crear el commit, ejecuta:${NC}"
+    echo -e "  ${CYAN}git commit -m \"Sync from main: $TOTAL_CHANGES files updated\"${NC}"
+    echo ""
+    echo -e "${BLUE}Resumen de cambios:${NC}"
+    if [[ -n "$MODIFIED_FILES" ]]; then
+        echo -e "${YELLOW}Archivos modificados ($(echo -e "$MODIFIED_FILES" | wc -l)):${NC}"
+        echo -e "$MODIFIED_FILES" | sed 's/^/  - /'
+    fi
+    if [[ -n "$NEW_FILES" ]]; then
+        echo -e "${GREEN}Archivos nuevos ($(echo -e "$NEW_FILES" | wc -l)):${NC}"
+        echo -e "$NEW_FILES" | sed 's/^/  - /'
+    fi
 fi
 
 echo ""
