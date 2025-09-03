@@ -1311,3 +1311,7 @@ Model::where('field', 'value')->get()
 3. Implementar Observers para eventos de modelo
 4. Explorar Query Scopes para consultas reutilizables
 5. Practicar con consultas avanzadas y optimización
+
+---
+> **Nota**: ESTO ES DE PRUEBA Y SE BORRARÁ!
+---
