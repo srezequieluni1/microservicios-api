@@ -1,9 +1,12 @@
 <mxfile host="65bd71144e">
     <diagram name="Repositorio Git - microservicios-api" id="git-repo-diagram">
-        <mxGraphModel dx="858" dy="485" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1391" dy="787" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
+                <mxCell id="24" value="" style="edgeStyle=none;html=1;endArrow=none;endFill=0;" edge="1" parent="1" source="repo-principal" target="23">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
                 <mxCell id="repo-principal" value="&lt;span style=&quot;color: rgb(255, 255, 255); font-size: 14px; font-weight: 700;&quot;&gt;Repositorio Principal&lt;/span&gt;&lt;br style=&quot;color: rgb(192, 192, 192); scrollbar-color: rgb(75, 75, 75) rgb(27, 29, 30); font-size: 14px; font-weight: 700;&quot;&gt;&lt;b style=&quot;color: rgb(192, 192, 192); scrollbar-color: rgb(75, 75, 75) rgb(27, 29, 30); font-size: 14px;&quot;&gt;microservicios-api&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=none;strokeWidth=2;gradientColor=#d5739d;gradientDirection=north;verticalAlign=top;" parent="1" vertex="1">
                     <mxGeometry x="315" y="130" width="200" height="120" as="geometry"/>
                 </mxCell>
@@ -48,7 +51,7 @@
                         <mxPoint x="414" y="250" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="fork-label1" value="fork" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1;fontSize=10;" parent="fork-arrow1" vertex="1" connectable="0">
+                <mxCell id="fork-label1" value="fork (sync)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1;fontSize=12;" parent="fork-arrow1" vertex="1" connectable="0">
                     <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
                         <mxPoint as="offset"/>
                     </mxGeometry>
@@ -59,7 +62,7 @@
                         <mxPoint x="544" y="250" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="fork-label2" value="fork" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1;fontSize=10;" parent="fork-arrow2" vertex="1" connectable="0">
+                <mxCell id="fork-label2" value="fork (sync)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1;fontSize=12;" parent="fork-arrow2" vertex="1" connectable="0">
                     <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
                         <mxPoint as="offset"/>
                     </mxGeometry>
@@ -169,6 +172,9 @@
                 </mxCell>
                 <mxCell id="22" value="" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.visual_studio_online;" parent="1" vertex="1">
                     <mxGeometry x="597" y="568" width="16" height="15" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="CORE" style="ellipse;whiteSpace=wrap;html=1;verticalAlign=middle;fillColor=#e6d0de;strokeColor=none;rounded=1;strokeWidth=2;gradientColor=#d5739d;gradientDirection=north;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="597" y="150" width="80" height="80" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
