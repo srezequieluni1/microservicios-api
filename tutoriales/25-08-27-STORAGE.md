@@ -737,7 +737,7 @@ erDiagram
         timestamp updated_at
     }
     
-    PRODUCTS {
+    PRODUCTOS {
         bigint id PK
         string name
         text description
@@ -763,7 +763,7 @@ erDiagram
         timestamp updated_at
     }
 
-    CATEGORIES ||--o{ PRODUCTS : "has many"
+    CATEGORIES ||--o{ PRODUCTOS : "has many"
 ```
 
 **Contenido de la migración:**
