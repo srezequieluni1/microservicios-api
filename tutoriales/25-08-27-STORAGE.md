@@ -618,13 +618,37 @@ $manualCategory->description = 'Materiales para arte y proyectos creativos';
 $manualCategory->color = '#17a2b8';
 $manualCategory->is_active = true;
 
-$manualCategory->save();
-echo "✓ Categoría creada con save(): {$manualCategory->name} (ID: {$manualCategory->id})\n";
+// try {
+    $manualCategory->save();
+    echo "✓ Categoría creada con save(): {$manualCategory->name} (ID: {$manualCategory->id})\n";
 
-// Actualizar con save()
-$manualCategory->description = 'Materiales para arte, manualidades y proyectos DIY';
-$manualCategory->save();
-echo "✓ Categoría actualizada con save(): nueva descripción guardada\n\n";
+    // Actualizar con save()
+    $manualCategory->description = 'Materiales para arte, manualidades y proyectos DIY';
+    $manualCategory->save();
+    echo "✓ Categoría actualizada con save(): nueva descripción guardada\n\n";
+// } catch (Exception $e) {
+    // echo "❌ Error al guardar categoría: " . $e->getMessage() . "\n\n";
+// }
+
+// try {
+//     $manualCategory->description = 'Materiales para arte, manualidades y proyectos DIY';
+//     $manualCategory->save();
+//     echo "✓ Categoría actualizada con save(): nueva descripción guardada\n\n";
+// } catch (\Illuminate\Database\QueryException $e) {
+//     echo "❌ Error de base de datos: " . $e->getMessage() . "\n";
+//     echo "Código de error SQL: " . $e->getCode() . "\n";
+//     echo "SQL ejecutado: " . $e->getSql() . "\n";
+// } catch (\Illuminate\Validation\ValidationException $e) {
+//     echo "❌ Error de validación: " . $e->getMessage() . "\n";
+//     foreach ($e->errors() as $field => $errors) {
+//         echo "Campo $field: " . implode(', ', $errors) . "\n";
+//     }
+// } catch (\Exception $e) {
+//     echo "❌ Error general: " . $e->getMessage() . "\n";
+//     echo "Archivo: " . $e->getFile() . " (línea " . $e->getLine() . ")\n";
+//     echo "Trace: " . $e->getTraceAsString() . "\n";
+// }
+
 
 // 7. RESUMEN FINAL
 echo "7. RESUMEN DE CATEGORÍAS CREADAS:\n";
