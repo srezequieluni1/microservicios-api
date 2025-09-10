@@ -509,6 +509,15 @@ $newCategory = Category::create([
     'is_active' => true
 ]);
 
+// Para segunda y sucesivas iteraciones utilizar:
+// $newCategory = Category::updateOrCreate([
+//     'name' => 'Libros',
+//     'slug' => 'libros',
+//     'description' => 'Libros y literatura',
+//     'color' => '#6f42c1',
+//     'is_active' => true
+// ]);
+
 echo "✓ Categoría creada con create(): {$newCategory->name} (ID: {$newCategory->id})\n\n";
 
 // 2. MÉTODO FIND - Buscar por ID
