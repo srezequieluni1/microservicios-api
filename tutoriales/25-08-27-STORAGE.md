@@ -905,6 +905,84 @@ return new class extends Migration
 };
 ```
 
+#### Insertar productos de prueba a la tabla products
+El siguiente código inserta productos de prueba en la tabla `products` sin utilizar seeders:
+
+1. **Crear archivo para insertar productos:**
+
+```bash
+touch ./insert_products.php
+```
+
+2. **Contenido del archivo `insert_products.php`:**
+
+```php
+<?php
+require_once 'vendor/autoload.php';
+$app = require_once 'bootstrap/app.php';
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap
+();
+use App\Models\Product;
+echo "=== INSERTANDO PRODUCTOS DE PRUEBA ===\n\n";
+
+$products = [
+    [
+        'name' => 'iPhone 15',
+        'description' => 'El último modelo de iPhone con características avanzadas.',
+        'image_url' => 'https://example.com/images/iphone15.jpg',
+        'price' => 999.99,
+        'weight' => 0.174,
+        'stock' => 50,
+        'is_active' => true,
+        'category_id' => 1 // Asegúrate de que esta categoría exista
+    ],
+    [
+        'name' => 'Samsung Galaxy S23',
+        'description' => 'Smartphone de alta gama con pantalla AMOLED.',
+        'image_url' => 'https://example.com/images/galaxy_s23.jpg',
+        'price' => 899.99,
+        'weight' => 0.168,
+        'stock' => 30,
+        'is_active' => true,
+        'category_id' => 1
+    ],
+    [
+        'name' => 'Dell XPS 13',
+        'description' => 'Portátil ultraligero con rendimiento excepcional.',
+        'image_url' => 'https://example.com/images/dell_xps13.jpg',
+        'price' => 1199.99,
+        'weight' => 1.2,
+        'stock' => 20,
+        'is_active' => true,
+        'category_id' => 2 // Asegúrate de que esta categoría exista
+    ],
+    [
+        'name' => 'Sony WH-1000XM4',
+        'description' => 'Auriculares inalámbricos con cancelación de ruido líder en la industria.',
+        'image_url' => 'https://example.com/images/sony_wh1000xm4.jpg',
+        'price' => 349.99,
+        'weight' => 0.254,
+        'stock' => 100,
+        'is_active' => true,
+        'category_id' => 3 // Asegúrate de que esta categoría exista
+    ]
+];
+
+foreach ($products as $productData) {
+    $product = Product::updateOrCreate(
+        ['name' => $productData['name']], // Condición de búsqueda
+        $productData // Datos a actualizar o crear
+    );
+    if ($product->wasRecentlyCreated) {
+        echo "✓ Producto creado: {$product->name} (ID: {$product->id})\n";
+    } else {
+        echo "✓ Producto actualizado: {$product->name} (ID: {$product->id})\n";
+    }
+}
+echo "\n=== TOTAL DE PRODUCTOS CREADOS: " . count($products) . " ===\n";
+echo "=== FIN DE LA INSERCIÓN DE PRODUCTOS ===\n";
+```
+
 ### 3.3 Caso Práctico Complejo
 
 Vamos a crear un sistema más complejo con **reseñas de productos**:
