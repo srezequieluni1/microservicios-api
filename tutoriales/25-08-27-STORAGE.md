@@ -934,7 +934,7 @@ $products = [
         'weight' => 0.174,
         'stock' => 50,
         'is_active' => true,
-        'category_id' => 1 // Asegúrate de que esta categoría exista
+        'category_id' => 1
     ],
     [
         'name' => 'Samsung Galaxy S23',
@@ -954,7 +954,7 @@ $products = [
         'weight' => 1.2,
         'stock' => 20,
         'is_active' => true,
-        'category_id' => 2 // Asegúrate de que esta categoría exista
+        'category_id' => 2
     ],
     [
         'name' => 'Sony WH-1000XM4',
@@ -964,7 +964,7 @@ $products = [
         'weight' => 0.254,
         'stock' => 100,
         'is_active' => true,
-        'category_id' => 3 // Asegúrate de que esta categoría exista
+        'category_id' => 3
     ]
 ];
 
@@ -980,7 +980,52 @@ foreach ($products as $productData) {
     }
 }
 echo "\n=== TOTAL DE PRODUCTOS CREADOS: " . count($products) . " ===\n";
-echo "=== FIN DE LA INSERCIÓN DE PRODUCTOS ===\n";
+```
+
+> Nota 1: Asegúrate de que la tabla `categories` tenga datos y que los IDs de categoría (`category_id`) en los productos coincidan con los existentes en la tabla `categories`.
+
+> Nota 2: Al ejecutar este documento PHP, se producirá un error porque el modelo `Product` no tiene definidos los campos que se están intentando asignar masivamente. Vamos a corregir esto.
+
+3. **Actualizar el modelo `Product` para permitir asignación masiva:**
+
+```php
+<?php
+namespace App\Models;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Product extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'description',
+        'image_url',
+        'price',
+        'weight',
+        'stock',
+        'is_active',
+        'category_id'
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'price' => 'decimal:2',
+        'weight' => 'decimal:2',
+    ];
+
+    // Relación con categoría
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+}
+```
+4. **Ejecutar el archivo para insertar productos:**
+
+```bash
+php insert_products.php
 ```
 
 ### 3.3 Caso Práctico Complejo
